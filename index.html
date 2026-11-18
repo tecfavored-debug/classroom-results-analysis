@@ -361,6 +361,31 @@
     .admin-role-select { height: 30px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: white; color: #536076; font-size: 10px; }
     .admin-actions { display: flex; align-items: center; gap: 8px; }
     .admin-actions .button { min-height: 29px; font-size: 10px; }
+    .settings-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 0 19px 19px; }
+    .settings-card { min-width: 0; border: 1px solid var(--line); border-radius: 9px; background: #fcfdff; }
+    .settings-card h3 { margin: 0; padding: 13px 14px 0; font-size: 12px; }
+    .settings-card > p { margin: 5px 14px 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .settings-form { display: grid; gap: 9px; padding: 12px 14px; }
+    .settings-form .auth-field { margin: 0; }
+    .settings-form input, .settings-form select {
+      width: 100%;
+      height: 35px;
+      min-width: 0;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      outline: none;
+      background: white;
+      color: var(--ink);
+      font-size: 11px;
+    }
+    .settings-form input:focus, .settings-form select:focus { border-color: #9eb4ff; box-shadow: 0 0 0 3px rgb(65 105 225 / 9%); }
+    .settings-list { display: grid; gap: 6px; max-height: 210px; overflow: auto; margin: 0; padding: 0 14px 14px; list-style: none; }
+    .settings-list li { padding: 8px 9px; border: 1px solid #edf0f5; border-radius: 6px; background: white; color: #536076; font-size: 10px; }
+    .settings-list .empty-setting { color: var(--muted); font-style: italic; }
+    .report-actions { display: flex; gap: 5px; }
+    .report-actions .button { min-height: 28px; padding: 0 8px; font-size: 9px; }
+    #print-report { display: none; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
     thead { background: #fafbfd; }
@@ -414,6 +439,7 @@
       .main-content { padding-right: 25px; padding-left: 25px; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .analysis-grid { grid-template-columns: minmax(0, 1.4fr) minmax(235px, .9fr); }
+      .settings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 760px) {
       .sidebar { position: static; width: 60px; flex: 0 0 60px; padding: 19px 8px; }
@@ -428,6 +454,7 @@
       .heading-actions { width: 100%; }
       .heading-actions .button { flex: 1; }
       .analysis-grid { grid-template-columns: 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
       .filter-bar { flex-wrap: wrap; }
       .search-wrap { width: 100%; margin-left: 0; }
       .filter-control { flex: 1; min-width: 110px; }
@@ -449,6 +476,21 @@
       .table-tools .button { flex: 1; }
       .auth-card { padding: 24px; }
       .admin-form { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body.printing-report > *:not(#print-report) { display: none !important; }
+      body.printing-report #print-report {
+        display: block !important;
+        padding: 0;
+        color: #111;
+        background: white;
+        font: 12px Arial, sans-serif;
+      }
+      #print-report h1 { margin: 0 0 5px; font-size: 22px; }
+      #print-report p { margin: 0 0 14px; color: #555; }
+      #print-report table { width: 100%; margin-top: 12px; border-collapse: collapse; white-space: normal; }
+      #print-report th, #print-report td { height: auto; padding: 7px; border: 1px solid #bbb; color: #111; font-size: 10px; }
+      #print-report th { background: #eee; text-align: left; }
     }
   </style>
 </head>
@@ -526,6 +568,10 @@
         <a class="nav-link" href="#students">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="8" r="3.3" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 19c.4-3 2.2-4.5 5.5-4.5 3.2 0 5.1 1.5 5.5 4.5m.5-13a3.3 3.3 0 0 1 0 6.4m2.5 2.3c2 .6 3.1 2.1 3.5 4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           <span>Students</span>
+        </a>
+        <a class="nav-link" href="#school-settings">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5v2m0 13v2m8.5-8.5h-2m-13 0h-2m14.5-6-1.4 1.4m-9.2 9.2L6 18m12 0-1.4-1.4m-9.2-9.2L6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/></svg>
+          <span>Settings</span>
         </a>
         <a class="nav-link" href="#assessments">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.8h7l4 4V20a1.2 1.2 0 0 1-1.2 1.2H7A1.2 1.2 0 0 1 5.8 20V5A1.2 1.2 0 0 1 7 3.8Z" stroke="currentColor" stroke-width="1.7"/><path d="M14 4v4h4m-9 4h6m-6 4h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
@@ -627,6 +673,8 @@
           <span class="filter-caption">FILTER BY</span>
           <label class="visually-hidden" for="class-filter">Class</label>
           <select class="filter-control" id="class-filter"><option value="">All classes</option></select>
+          <label class="visually-hidden" for="stream-filter">Stream</label>
+          <select class="filter-control" id="stream-filter"><option value="">All streams</option></select>
           <label class="visually-hidden" for="subject-filter">Subject</label>
           <select class="filter-control" id="subject-filter"><option value="">All subjects</option></select>
           <label class="visually-hidden" for="assessment-filter">Assessment</label>
@@ -692,6 +740,7 @@
                 <select class="panel-select" id="chart-mode" aria-label="Chart grouping">
                   <option value="subject">By subject</option>
                   <option value="class">By class</option>
+                  <option value="stream">By stream</option>
                   <option value="assessment">By assessment</option>
                 </select>
               </label>
@@ -714,6 +763,65 @@
           </article>
         </section>
 
+        <section class="panel table-panel" id="class-reports" aria-labelledby="class-reports-title">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="class-reports-title">Overall class analysis</h2>
+              <p class="panel-description">All subjects and assessments, grouped by class. Averages are weighted by possible marks; CBE counts are per result. Download or print any class report.</p>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Class</th>
+                  <th scope="col">Enrolled</th>
+                  <th scope="col">Assessed</th>
+                  <th scope="col">Results</th>
+                  <th scope="col">Total marks</th>
+                  <th scope="col">Average</th>
+                  <th scope="col">EE</th>
+                  <th scope="col">ME</th>
+                  <th scope="col">AE</th>
+                  <th scope="col">BE</th>
+                  <th scope="col">Report</th>
+                </tr>
+              </thead>
+              <tbody id="class-report-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel table-panel" id="stream-reports" aria-labelledby="stream-reports-title" style="margin-top: 16px">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="stream-reports-title">Overall stream analysis</h2>
+              <p class="panel-description">All subjects and assessments, grouped by stream. Averages are weighted by possible marks; CBE counts are per result. Download or print any stream report.</p>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Class</th>
+                  <th scope="col">Stream</th>
+                  <th scope="col">Enrolled</th>
+                  <th scope="col">Assessed</th>
+                  <th scope="col">Results</th>
+                  <th scope="col">Total marks</th>
+                  <th scope="col">Average</th>
+                  <th scope="col">EE</th>
+                  <th scope="col">ME</th>
+                  <th scope="col">AE</th>
+                  <th scope="col">BE</th>
+                  <th scope="col">Report</th>
+                </tr>
+              </thead>
+              <tbody id="stream-report-body"></tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="panel table-panel" id="learner-summary" aria-labelledby="learner-summary-title">
           <header class="table-heading">
             <div>
@@ -730,6 +838,7 @@
                 <tr>
                   <th scope="col">Learner</th>
                   <th scope="col">Class</th>
+                  <th scope="col">Stream</th>
                   <th scope="col">Assessments</th>
                   <th scope="col">Total marks</th>
                   <th scope="col">Average</th>
@@ -742,6 +851,71 @@
           <footer class="table-footer">
             <span id="learner-summary-count">Showing —</span>
           </footer>
+        </section>
+
+        <section class="panel table-panel" id="school-settings" aria-labelledby="settings-title" style="margin-top: 18px">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="settings-title">School settings</h2>
+              <p class="panel-description">Add classes, streams and learners. Changes are shared with authorized staff through Supabase.</p>
+            </div>
+          </header>
+          <div class="settings-grid">
+            <article class="settings-card">
+              <h3>Classes</h3>
+              <p>Create a class level such as Grade 7 or Year 8.</p>
+              <form class="settings-form" id="class-form">
+                <div class="auth-field">
+                  <label for="new-class-name">Class name</label>
+                  <input id="new-class-name" name="className" maxlength="80" required placeholder="e.g. Grade 7">
+                </div>
+                <button type="submit" class="button primary">Add class</button>
+              </form>
+              <ul class="settings-list" id="class-list"><li class="empty-setting">No classes yet.</li></ul>
+            </article>
+
+            <article class="settings-card">
+              <h3>Streams</h3>
+              <p>Add a stream inside its class, for example A or Blue.</p>
+              <form class="settings-form" id="stream-form">
+                <div class="auth-field">
+                  <label for="new-stream-class">Class</label>
+                  <select id="new-stream-class" required><option value="">Choose a class</option></select>
+                </div>
+                <div class="auth-field">
+                  <label for="new-stream-name">Stream name</label>
+                  <input id="new-stream-name" name="streamName" maxlength="40" required placeholder="e.g. A">
+                </div>
+                <button type="submit" class="button primary">Add stream</button>
+              </form>
+              <ul class="settings-list" id="stream-list"><li class="empty-setting">No streams yet.</li></ul>
+            </article>
+
+            <article class="settings-card">
+              <h3>Students</h3>
+              <p>Add a learner and assign their class and stream.</p>
+              <form class="settings-form" id="student-form">
+                <div class="auth-field">
+                  <label for="new-student-name">Student name</label>
+                  <input id="new-student-name" name="studentName" maxlength="160" required placeholder="Full name">
+                </div>
+                <div class="auth-field">
+                  <label for="new-student-admission">Admission number <span class="panel-description">(optional)</span></label>
+                  <input id="new-student-admission" name="admissionNumber" maxlength="80" placeholder="e.g. 2026-014">
+                </div>
+                <div class="auth-field">
+                  <label for="new-student-class">Class</label>
+                  <select id="new-student-class" required><option value="">Choose a class</option></select>
+                </div>
+                <div class="auth-field">
+                  <label for="new-student-stream">Stream</label>
+                  <select id="new-student-stream" required><option value="">Choose a stream</option></select>
+                </div>
+                <button type="submit" class="button primary">Add student</button>
+              </form>
+              <ul class="settings-list" id="student-list"><li class="empty-setting">No students yet.</li></ul>
+            </article>
+          </div>
         </section>
 
         <section class="panel table-panel" id="students" aria-labelledby="table-title">
@@ -764,6 +938,7 @@
                 <tr>
                   <th scope="col">Student</th>
                   <th scope="col">Class</th>
+                  <th scope="col">Stream</th>
                   <th scope="col">Subject</th>
                   <th scope="col">Assessment</th>
                   <th scope="col">Score</th>
@@ -792,6 +967,7 @@
     </main>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div id="print-report" hidden></div>
 
   <script src="supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -826,7 +1002,7 @@
         { student: "James Wilson", className: "Year 8B", subject: "Science", assessment: "Lab assessment", score: 51, maxScore: 100, date: "2025-05-16" }
       ];
 
-      const state = { results: sampleResults, page: 1, pageSize: 8, toastTimer: 0 };
+      const state = { results: [], classes: [], streams: [], students: [], page: 1, pageSize: 8, toastTimer: 0 };
       const cbeBands = [
         { code: "EE", descriptor: "Exceeding expectations", range: "85–100%", className: "band-excellent", gradeClass: "ee", minimum: 85 },
         { code: "ME", descriptor: "Meeting expectations", range: "70–84%", className: "band-good", gradeClass: "me", minimum: 70 },
@@ -835,6 +1011,7 @@
       ];
       const elements = {
         classFilter: document.querySelector("#class-filter"),
+        streamFilter: document.querySelector("#stream-filter"),
         subjectFilter: document.querySelector("#subject-filter"),
         assessmentFilter: document.querySelector("#assessment-filter"),
         search: document.querySelector("#search-input"),
@@ -895,13 +1072,18 @@
         document.querySelector("#admin-panel").hidden = true;
         authElements.password.value = "";
         document.querySelector("#password-form").reset();
-        state.results = sampleResults;
+        state.results = [];
+        state.classes = [];
+        state.streams = [];
+        state.students = [];
         state.page = 1;
         elements.classFilter.value = "";
+        elements.streamFilter.value = "";
         elements.subjectFilter.value = "";
         elements.assessmentFilter.value = "";
         elements.search.value = "";
         refreshFilters();
+        renderSettings();
         render();
       }
 
@@ -937,6 +1119,73 @@
         document.querySelector("#profile-avatar").textContent = initials || "U";
         document.querySelector("#admin-panel").hidden = profile.role !== "admin";
         if (profile.role === "admin") await loadAdminUsers();
+        try {
+          await loadWorkspaceData();
+        } catch (loadError) {
+          refreshFilters();
+          renderSettings();
+          render();
+          showToast(loadError instanceof Error ? loadError.message : "Could not load school data.", true);
+        }
+      }
+
+      async function selectAllRows(table, columns, orderColumn) {
+        const rows = [];
+        for (let offset = 0; ; offset += 1000) {
+          const { data, error } = await supabaseClient
+            .from(table)
+            .select(columns)
+            .order(orderColumn, { ascending: true })
+            .range(offset, offset + 999);
+          if (error) throw new Error(`Could not load ${table.replace("school_", "")}: ${error.message}`);
+          rows.push(...data);
+          if (data.length < 1000) return rows;
+        }
+      }
+
+      async function loadWorkspaceData() {
+        state.results = [];
+        state.classes = [];
+        state.streams = [];
+        state.students = [];
+        const [classes, streams, students, storedResults] = await Promise.all([
+          selectAllRows("school_classes", "id, name", "name"),
+          selectAllRows("school_streams", "id, class_id, name", "name"),
+          selectAllRows("school_students", "id, full_name, admission_number, class_id, stream_id", "full_name"),
+          selectAllRows("school_results", "id, student_id, subject, assessment, score, max_score, assessment_date", "assessment_date")
+        ]);
+        const classesById = new Map(classes.map((item) => [item.id, item]));
+        const streamsById = new Map(streams.map((item) => [item.id, item]));
+        const studentsById = new Map(students.map((item) => [item.id, item]));
+
+        state.classes = classes;
+        state.streams = streams;
+        state.students = students;
+        state.results = storedResults.map((item) => {
+          const student = studentsById.get(item.student_id);
+          if (!student) throw new Error("A result is linked to a missing student. Ask an administrator to check the school data.");
+          const classroom = classesById.get(student.class_id);
+          const stream = streamsById.get(student.stream_id);
+          if (!classroom || !stream) throw new Error("A student is linked to a missing class or stream. Ask an administrator to check the school data.");
+          return {
+            id: item.id,
+            studentId: student.id,
+            student: student.full_name,
+            admissionNumber: student.admission_number || "",
+            classId: classroom.id,
+            className: classroom.name,
+            streamId: stream.id,
+            streamName: stream.name,
+            subject: item.subject,
+            assessment: item.assessment,
+            score: Number(item.score),
+            maxScore: Number(item.max_score),
+            date: item.assessment_date
+          };
+        });
+        refreshFilters();
+        renderSettings();
+        render();
       }
 
       async function readFunctionError(error) {
@@ -1151,30 +1400,109 @@
       function populateSelect(select, values, placeholder) {
         const current = select.value;
         select.replaceChildren(new Option(placeholder, ""));
-        values.forEach((value) => select.add(new Option(value, value)));
-        select.value = values.includes(current) ? current : "";
+        values.forEach((value) => {
+          if (typeof value === "string") select.add(new Option(value, value));
+          else select.add(new Option(value.label, value.value));
+        });
+        const available = values.some((value) => (typeof value === "string" ? value : value.value) === current);
+        select.value = available ? current : "";
+      }
+
+      function refreshStreamFilter() {
+        const matchingStreams = state.streams.filter((stream) => !elements.classFilter.value || stream.class_id === elements.classFilter.value);
+        populateSelect(elements.streamFilter, matchingStreams.map((stream) => ({
+          value: stream.id,
+          label: `${state.classes.find((item) => item.id === stream.class_id)?.name || "Class"} — ${stream.name}`
+        })), "All streams");
       }
 
       function refreshFilters() {
-        populateSelect(elements.classFilter, uniqueValues("className"), "All classes");
+        populateSelect(elements.classFilter, state.classes.map((item) => ({ value: item.id, label: item.name })), "All classes");
+        refreshStreamFilter();
         populateSelect(elements.subjectFilter, uniqueValues("subject"), "All subjects");
         populateSelect(elements.assessmentFilter, uniqueValues("assessment"), "All assessments");
         document.querySelector("#nav-count").textContent = String(state.results.length);
       }
 
+      function refreshStudentStreams() {
+        const classId = document.querySelector("#new-student-class").value;
+        const options = state.streams
+          .filter((stream) => stream.class_id === classId)
+          .map((stream) => ({ value: stream.id, label: stream.name }));
+        populateSelect(document.querySelector("#new-student-stream"), options, "Choose a stream");
+      }
+
+      function renderSettings() {
+        populateSelect(document.querySelector("#new-stream-class"), state.classes.map((item) => ({ value: item.id, label: item.name })), "Choose a class");
+        populateSelect(document.querySelector("#new-student-class"), state.classes.map((item) => ({ value: item.id, label: item.name })), "Choose a class");
+        refreshStudentStreams();
+
+        const classList = document.querySelector("#class-list");
+        classList.innerHTML = state.classes.length
+          ? state.classes.map((classroom) => {
+            const streamCount = state.streams.filter((stream) => stream.class_id === classroom.id).length;
+            const studentCount = state.students.filter((student) => student.class_id === classroom.id).length;
+            return `<li><strong>${escapeHtml(classroom.name)}</strong> · ${streamCount} ${streamCount === 1 ? "stream" : "streams"} · ${studentCount} ${studentCount === 1 ? "learner" : "learners"}</li>`;
+          }).join("")
+          : '<li class="empty-setting">No classes yet.</li>';
+
+        const streamList = document.querySelector("#stream-list");
+        streamList.innerHTML = state.streams.length
+          ? state.streams.map((stream) => {
+            const className = state.classes.find((item) => item.id === stream.class_id)?.name || "Unknown class";
+            return `<li><strong>${escapeHtml(className)} — ${escapeHtml(stream.name)}</strong> · ${state.students.filter((student) => student.stream_id === stream.id).length} learners</li>`;
+          }).join("")
+          : '<li class="empty-setting">No streams yet.</li>';
+
+        const studentList = document.querySelector("#student-list");
+        const visibleStudents = state.students.slice(0, 100);
+        studentList.innerHTML = visibleStudents.length
+          ? visibleStudents.map((student) => {
+            const className = state.classes.find((item) => item.id === student.class_id)?.name || "Unknown class";
+            const streamName = state.streams.find((item) => item.id === student.stream_id)?.name || "Unknown stream";
+            const admission = student.admission_number ? ` · ${escapeHtml(student.admission_number)}` : "";
+            return `<li>${escapeHtml(student.full_name)}${admission}<br><span class="panel-description">${escapeHtml(className)} — ${escapeHtml(streamName)}</span></li>`;
+          }).join("")
+          : '<li class="empty-setting">No students yet.</li>';
+        if (state.students.length > visibleStudents.length) {
+          studentList.insertAdjacentHTML("beforeend", `<li class="empty-setting">Showing ${visibleStudents.length} of ${state.students.length} students.</li>`);
+        }
+      }
+
+      async function submitSettingsForm(event, successMessage, action) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const button = event.submitter || form.querySelector('button[type="submit"]');
+        button.disabled = true;
+        let saved = false;
+        try {
+          await action();
+          saved = true;
+          form.reset();
+          await loadWorkspaceData();
+          showToast(successMessage);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Could not save this school setting.";
+          showToast(saved ? `Saved, but could not refresh the school data: ${message}` : message, true);
+        } finally {
+          button.disabled = false;
+        }
+      }
+
       function visibleResults() {
         const query = elements.search.value.trim().toLocaleLowerCase();
         return state.results.filter((row) => {
-          const matchesFilters = (!elements.classFilter.value || row.className === elements.classFilter.value)
+          const matchesFilters = (!elements.classFilter.value || row.classId === elements.classFilter.value)
+            && (!elements.streamFilter.value || row.streamId === elements.streamFilter.value)
             && (!elements.subjectFilter.value || row.subject === elements.subjectFilter.value)
             && (!elements.assessmentFilter.value || row.assessment === elements.assessmentFilter.value);
-          const matchesQuery = !query || [row.student, row.className, row.subject, row.assessment].some((value) => value.toLocaleLowerCase().includes(query));
+          const matchesQuery = !query || [row.student, row.admissionNumber, row.className, row.streamName, row.subject, row.assessment].some((value) => value.toLocaleLowerCase().includes(query));
           return matchesFilters && matchesQuery;
         });
       }
 
       function updateMetrics(rows) {
-        const students = new Set(rows.map((row) => JSON.stringify([row.className, row.student]))).size;
+        const students = new Set(rows.map((row) => row.studentId || JSON.stringify([row.className, row.streamName, row.student]))).size;
         const totalScore = rows.reduce((sum, row) => sum + row.score, 0);
         const totalMaxScore = rows.reduce((sum, row) => sum + row.maxScore, 0);
         const average = totalMaxScore ? totalScore / totalMaxScore * 100 : 0;
@@ -1202,16 +1530,17 @@
       function renderChart(rows) {
         const svg = document.querySelector("#subject-chart");
         const mode = elements.chartMode.value;
-        const name = { subject: "subject", class: "className", assessment: "assessment" }[mode];
-        const label = { subject: "subject", class: "class", assessment: "assessment" }[mode];
+        const name = { subject: "subject", class: "className", stream: "streamName", assessment: "assessment" }[mode];
+        const label = { subject: "subject", class: "class", stream: "stream", assessment: "assessment" }[mode];
         document.querySelector("#chart-title").textContent = `${label[0].toUpperCase()}${label.slice(1)} performance`;
         document.querySelector("#chart-description").textContent = `Average score by ${label}, shown as a percentage.`;
         const aggregate = new Map();
         rows.forEach((row) => {
-          const entry = aggregate.get(row[name]) || { totalScore: 0, totalMaxScore: 0 };
+          const groupName = mode === "stream" ? `${row.className} — ${row.streamName}` : row[name];
+          const entry = aggregate.get(groupName) || { totalScore: 0, totalMaxScore: 0 };
           entry.totalScore += row.score;
           entry.totalMaxScore += row.maxScore;
-          aggregate.set(row[name], entry);
+          aggregate.set(groupName, entry);
         });
         const entries = [...aggregate.entries()]
           .map(([label, item]) => [label, item.totalScore / item.totalMaxScore * 100])
@@ -1288,10 +1617,12 @@
       function learnerSummaries(rows) {
         const learners = new Map();
         rows.forEach((row) => {
-          const key = JSON.stringify([row.className, row.student]);
+          const key = row.studentId || JSON.stringify([row.className, row.streamName, row.student]);
           const learner = learners.get(key) || {
+            studentId: row.studentId,
             student: row.student,
             className: row.className,
+            streamName: row.streamName || "",
             assessmentCount: 0,
             totalScore: 0,
             totalMaxScore: 0
@@ -1306,7 +1637,7 @@
             ...learner,
             average: learner.totalMaxScore ? learner.totalScore / learner.totalMaxScore * 100 : 0
           }))
-          .sort((a, b) => a.className.localeCompare(b.className) || a.student.localeCompare(b.student));
+            .sort((a, b) => a.className.localeCompare(b.className) || a.streamName.localeCompare(b.streamName) || a.student.localeCompare(b.student));
       }
 
       function renderLearnerSummary(rows) {
@@ -1314,7 +1645,7 @@
         const body = document.querySelector("#learner-summary-body");
         body.innerHTML = "";
         if (!learners.length) {
-          body.innerHTML = '<tr><td class="empty-row" colspan="6">No learners match these filters.</td></tr>';
+          body.innerHTML = '<tr><td class="empty-row" colspan="7">No learners match these filters.</td></tr>';
         } else {
           learners.forEach((learner) => {
             const level = gradeFor(learner.average);
@@ -1322,6 +1653,7 @@
             tr.innerHTML = `
               <td><div class="student-cell"><span class="student-avatar" aria-hidden="true">${escapeHtml(learner.student.split(/\s+/).map((part) => part.match(/[\p{L}\p{N}]/u)?.[0]).filter(Boolean).slice(0, 2).join("").toUpperCase())}</span>${escapeHtml(learner.student)}</div></td>
               <td>${escapeHtml(learner.className)}</td>
+              <td>${escapeHtml(learner.streamName || "—")}</td>
               <td>${learner.assessmentCount}</td>
               <td>${formatMark(learner.totalScore)} / ${formatMark(learner.totalMaxScore)}</td>
               <td>${learner.average.toFixed(1)}%</td>
@@ -1340,7 +1672,7 @@
         const pageRows = rows.slice(start, start + state.pageSize);
         elements.body.innerHTML = "";
         if (!pageRows.length) {
-          elements.body.innerHTML = '<tr><td class="empty-row" colspan="8">No results found. Try adjusting your filters or import a results CSV.</td></tr>';
+          elements.body.innerHTML = '<tr><td class="empty-row" colspan="9">No results found. Add students and classes, then import a results CSV.</td></tr>';
         } else {
           pageRows.forEach((row) => {
             const score = percentage(row);
@@ -1355,6 +1687,7 @@
             tr.innerHTML = `
               <td><div class="student-cell"><span class="student-avatar" aria-hidden="true">${escapeHtml(initials)}</span>${escapeHtml(row.student)}</div></td>
               <td>${escapeHtml(row.className)}</td>
+              <td>${escapeHtml(row.streamName || "—")}</td>
               <td>${escapeHtml(row.subject)}</td>
               <td>${escapeHtml(row.assessment)}</td>
               <td><div class="score-cell"><span>${row.score} / ${row.maxScore}</span><span class="score-track" aria-hidden="true"><span class="${score < 70 ? "low" : ""}" style="width:${Math.min(score, 100)}%"></span></span></div></td>
@@ -1380,6 +1713,199 @@
         renderDistribution(rows);
         renderLearnerSummary(rows);
         renderTable(rows);
+        renderReports();
+      }
+
+      function resultStatistics(rows) {
+        const bandCounts = Object.fromEntries(cbeBands.map((band) => [band.code, 0]));
+        let totalScore = 0;
+        let totalMaxScore = 0;
+        rows.forEach((row) => {
+          totalScore += row.score;
+          totalMaxScore += row.maxScore;
+          const band = cbeLevel(percentage(row));
+          bandCounts[band.code] += 1;
+        });
+        return {
+          studentsAssessed: new Set(rows.map((row) => row.studentId || JSON.stringify([row.className, row.streamName, row.student]))).size,
+          resultCount: rows.length,
+          totalScore,
+          totalMaxScore,
+          average: totalMaxScore ? totalScore / totalMaxScore * 100 : null,
+          bandCounts
+        };
+      }
+
+      function reportGroups(kind) {
+        if (kind === "class") {
+          return state.classes.map((classroom) => {
+            const results = state.results.filter((row) => row.classId === classroom.id);
+            return {
+              id: classroom.id,
+              kind,
+              className: classroom.name,
+              streamName: "",
+              enrolled: state.students.filter((student) => student.class_id === classroom.id).length,
+              results,
+              stats: resultStatistics(results)
+            };
+          });
+        }
+        return state.streams.map((stream) => {
+          const classroom = state.classes.find((item) => item.id === stream.class_id);
+          const results = state.results.filter((row) => row.streamId === stream.id);
+          return {
+            id: stream.id,
+            kind,
+            className: classroom?.name || "Unknown class",
+            streamName: stream.name,
+            enrolled: state.students.filter((student) => student.stream_id === stream.id).length,
+            results,
+            stats: resultStatistics(results)
+          };
+        });
+      }
+
+      function renderReportTable(kind, body, columnCount) {
+        const groups = reportGroups(kind);
+        if (!groups.length) {
+          body.innerHTML = `<tr><td class="empty-row" colspan="${columnCount}">Add a ${kind} in School settings to see its analysis.</td></tr>`;
+          return;
+        }
+        body.innerHTML = groups.map((group) => {
+          const stats = group.stats;
+          const groupLabel = group.kind === "stream" ? `${group.className} — ${group.streamName}` : group.className;
+          const leadingCells = group.kind === "stream"
+            ? `<td>${escapeHtml(group.className)}</td><td>${escapeHtml(group.streamName)}</td>`
+            : `<td>${escapeHtml(group.className)}</td>`;
+          return `<tr>
+            ${leadingCells}
+            <td>${group.enrolled}</td>
+            <td>${stats.studentsAssessed}</td>
+            <td>${stats.resultCount}</td>
+            <td>${stats.resultCount ? `${formatMark(stats.totalScore)} / ${formatMark(stats.totalMaxScore)}` : "—"}</td>
+            <td>${stats.average === null ? "—" : `${stats.average.toFixed(1)}%`}</td>
+            <td>${stats.bandCounts.EE}</td>
+            <td>${stats.bandCounts.ME}</td>
+            <td>${stats.bandCounts.AE}</td>
+            <td>${stats.bandCounts.BE}</td>
+            <td><div class="report-actions">
+              <button type="button" class="button" data-report-action="download" data-report-kind="${kind}" data-report-id="${escapeHtml(group.id)}" aria-label="Download ${escapeHtml(groupLabel)} report">Download</button>
+              <button type="button" class="button" data-report-action="print" data-report-kind="${kind}" data-report-id="${escapeHtml(group.id)}" aria-label="Print ${escapeHtml(groupLabel)} report">Print</button>
+            </div></td>
+          </tr>`;
+        }).join("");
+      }
+
+      function renderReports() {
+        renderReportTable("class", document.querySelector("#class-report-body"), 11);
+        renderReportTable("stream", document.querySelector("#stream-report-body"), 12);
+      }
+
+      function findReportGroup(kind, id) {
+        return reportGroups(kind).find((group) => group.id === id);
+      }
+
+      function reportCsvRows(group) {
+        const stats = group.stats;
+        const learners = learnerSummaries(group.results);
+        const summaryRow = {
+          recordType: "Group summary",
+          className: group.className,
+          streamName: group.streamName,
+          student: "",
+          enrolled: group.enrolled,
+          studentsAssessed: stats.studentsAssessed,
+          assessments: stats.resultCount,
+          totalScore: stats.totalScore,
+          totalMaxScore: stats.totalMaxScore,
+          average: stats.average === null ? "" : stats.average.toFixed(1),
+          bandCounts: stats.bandCounts,
+          cbeLevel: ""
+        };
+        const learnerRows = learners.map((learner) => ({
+          recordType: "Learner",
+          className: learner.className,
+          streamName: learner.streamName,
+          student: learner.student,
+          enrolled: "",
+          studentsAssessed: "",
+          assessments: learner.assessmentCount,
+          totalScore: learner.totalScore,
+          totalMaxScore: learner.totalMaxScore,
+          average: learner.average.toFixed(1),
+          bandCounts: { EE: "", ME: "", AE: "", BE: "" },
+          cbeLevel: cbeLevel(learner.average).code
+        }));
+        return [summaryRow, ...learnerRows];
+      }
+
+      function downloadGroupReport(group) {
+        const label = group.kind === "stream" ? `${group.className}-${group.streamName}` : group.className;
+        const filename = `${group.kind}-${label}`.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "results-report";
+        const columns = [
+          { label: "RecordType", value: (row) => row.recordType },
+          { label: "Class", value: (row) => row.className },
+          { label: "Stream", value: (row) => row.streamName },
+          { label: "Student", value: (row) => row.student },
+          { label: "Enrolled", value: (row) => row.enrolled },
+          { label: "StudentsAssessed", value: (row) => row.studentsAssessed },
+          { label: "Assessments", value: (row) => row.assessments },
+          { label: "TotalMarks", value: (row) => row.totalScore },
+          { label: "PossibleMarks", value: (row) => row.totalMaxScore },
+          { label: "AveragePercent", value: (row) => row.average },
+          { label: "EE", value: (row) => row.bandCounts.EE },
+          { label: "ME", value: (row) => row.bandCounts.ME },
+          { label: "AE", value: (row) => row.bandCounts.AE },
+          { label: "BE", value: (row) => row.bandCounts.BE },
+          { label: "LearnerCBELevel", value: (row) => row.cbeLevel }
+        ];
+        downloadCsv(`${filename}-analysis.csv`, columns, reportCsvRows(group));
+        showToast(`Downloaded the ${group.kind} analysis report.`);
+      }
+
+      function printGroupReport(group) {
+        const stats = group.stats;
+        const learners = learnerSummaries(group.results);
+        const title = group.kind === "stream" ? `${group.className} — ${group.streamName}` : group.className;
+        const groupSummary = group.kind === "stream" ? "Stream report" : "Class report";
+        const learnerRows = learners.length
+          ? learners.map((learner) => `<tr>
+              <td>${escapeHtml(learner.student)}</td>
+              ${group.kind === "class" ? `<td>${escapeHtml(learner.streamName || "—")}</td>` : ""}
+              <td>${learner.assessmentCount}</td>
+              <td>${formatMark(learner.totalScore)} / ${formatMark(learner.totalMaxScore)}</td>
+              <td>${learner.average.toFixed(1)}%</td>
+              <td>${escapeHtml(cbeLevel(learner.average).code)} — ${escapeHtml(cbeLevel(learner.average).descriptor)}</td>
+            </tr>`).join("")
+          : `<tr><td colspan="${group.kind === "class" ? 6 : 5}">No results have been recorded for this ${group.kind}.</td></tr>`;
+        const printReport = document.querySelector("#print-report");
+        printReport.innerHTML = `
+          <h1>Results analysis</h1>
+          <p>${escapeHtml(groupSummary)}: ${escapeHtml(title)} · Printed ${escapeHtml(new Date().toLocaleDateString())}</p>
+          <table>
+            <thead><tr><th>Learners enrolled</th><th>Students assessed</th><th>Results</th><th>Total marks</th><th>Average</th><th>EE</th><th>ME</th><th>AE</th><th>BE</th></tr></thead>
+            <tbody><tr>
+              <td>${group.enrolled}</td><td>${stats.studentsAssessed}</td><td>${stats.resultCount}</td>
+              <td>${stats.resultCount ? `${formatMark(stats.totalScore)} / ${formatMark(stats.totalMaxScore)}` : "—"}</td>
+              <td>${stats.average === null ? "—" : `${stats.average.toFixed(1)}%`}</td>
+              <td>${stats.bandCounts.EE}</td><td>${stats.bandCounts.ME}</td><td>${stats.bandCounts.AE}</td><td>${stats.bandCounts.BE}</td>
+            </tr></tbody>
+          </table>
+          <h2>Learner results summary</h2>
+          <table>
+            <thead><tr><th>Learner</th>${group.kind === "class" ? "<th>Stream</th>" : ""}<th>Assessments</th><th>Total marks</th><th>Average</th><th>CBE level</th></tr></thead>
+            <tbody>${learnerRows}</tbody>
+          </table>
+          <p>CBE percentage bands are a reporting aid; confirm cutoffs with your school’s assessment rubric.</p>`;
+        printReport.hidden = false;
+        document.body.classList.add("printing-report");
+        window.addEventListener("afterprint", () => {
+          document.body.classList.remove("printing-report");
+          printReport.hidden = true;
+          printReport.replaceChildren();
+        }, { once: true });
+        window.print();
       }
 
       function csvCell(value) {
@@ -1411,7 +1937,9 @@
         }
         const columns = [
           { label: "Student", value: (row) => row.student },
+          { label: "AdmissionNumber", value: (row) => row.admissionNumber },
           { label: "Class", value: (row) => row.className },
+          { label: "Stream", value: (row) => row.streamName },
           { label: "Subject", value: (row) => row.subject },
           { label: "Assessment", value: (row) => row.assessment },
           { label: "Score", value: (row) => row.score },
@@ -1434,6 +1962,7 @@
         const columns = [
           { label: "Student", value: (learner) => learner.student },
           { label: "Class", value: (learner) => learner.className },
+          { label: "Stream", value: (learner) => learner.streamName },
           { label: "Assessments", value: (learner) => learner.assessmentCount },
           { label: "TotalMarks", value: (learner) => learner.totalScore },
           { label: "PossibleMarks", value: (learner) => learner.totalMaxScore },
@@ -1475,7 +2004,9 @@
         const locate = (...names) => headers.findIndex((header) => names.includes(header));
         const indexes = {
           student: locate("student", "studentname", "learner", "learnername", "name"),
+          admissionNumber: locate("admissionnumber", "admissionno", "admno", "studentid"),
           className: locate("class", "classname", "group"),
+          streamName: locate("stream", "streamname"),
           subject: locate("subject", "course"),
           assessment: locate("assessment", "exam", "test", "assessmentname"),
           score: locate("score", "mark", "result", "points"),
@@ -1492,48 +2023,159 @@
           const get = (key, fallback = "") => indexes[key] < 0 ? fallback : (values[indexes[key]] ?? "");
           const score = Number(get("score"));
           const maxScore = indexes.maxScore < 0 || get("maxScore") === "" ? 100 : Number(get("maxScore"));
+          const date = get("date").trim();
           const line = index + 2;
           if (!get("student").trim()) throw new Error(`Row ${line}: Student cannot be blank.`);
           if (!get("subject").trim()) throw new Error(`Row ${line}: Subject cannot be blank.`);
           if (!Number.isFinite(score) || !Number.isFinite(maxScore) || maxScore <= 0 || score < 0 || score > maxScore) {
             throw new Error(`Row ${line}: Score must be a number between 0 and a positive MaxScore.`);
           }
+          if (date && (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00`)))) {
+            throw new Error(`Row ${line}: Date must use YYYY-MM-DD format.`);
+          }
           return {
             student: get("student").trim(),
-            className: get("className").trim() || "Unassigned",
+            admissionNumber: get("admissionNumber").trim(),
+            className: get("className").trim(),
+            streamName: get("streamName").trim(),
             subject: get("subject").trim(),
             assessment: get("assessment").trim() || "Assessment",
             score,
             maxScore,
-            date: get("date").trim()
+            date
           };
         });
         if (!imported.length) throw new Error("The CSV does not contain any results.");
         return imported;
       }
 
+      document.querySelector("#class-form").addEventListener("submit", (event) => {
+        submitSettingsForm(event, "Class added.", async () => {
+          const name = document.querySelector("#new-class-name").value.trim();
+          if (!name) throw new Error("Enter a class name.");
+          if (state.classes.some((classroom) => classroom.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+            throw new Error("A class with that name already exists.");
+          }
+          const { error } = await supabaseClient.from("school_classes").insert({ name });
+          if (error) throw new Error(`Could not add the class: ${error.message}`);
+        });
+      });
+
+      document.querySelector("#stream-form").addEventListener("submit", (event) => {
+        submitSettingsForm(event, "Stream added.", async () => {
+          const classId = document.querySelector("#new-stream-class").value;
+          const name = document.querySelector("#new-stream-name").value.trim();
+          if (!classId || !name) throw new Error("Choose a class and enter a stream name.");
+          if (!state.classes.some((classroom) => classroom.id === classId)) throw new Error("Choose a valid class.");
+          if (state.streams.some((stream) => stream.class_id === classId && stream.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+            throw new Error("That stream already exists in this class.");
+          }
+          const { error } = await supabaseClient.from("school_streams").insert({ class_id: classId, name });
+          if (error) throw new Error(`Could not add the stream: ${error.message}`);
+        });
+      });
+
+      document.querySelector("#new-student-class").addEventListener("change", refreshStudentStreams);
+      document.querySelector("#student-form").addEventListener("submit", (event) => {
+        submitSettingsForm(event, "Student added.", async () => {
+          const fullName = document.querySelector("#new-student-name").value.trim();
+          const admissionNumber = document.querySelector("#new-student-admission").value.trim();
+          const classId = document.querySelector("#new-student-class").value;
+          const streamId = document.querySelector("#new-student-stream").value;
+          if (!fullName || !classId || !streamId) throw new Error("Enter the student's name and choose a class and stream.");
+          const stream = state.streams.find((item) => item.id === streamId && item.class_id === classId);
+          if (!stream) throw new Error("Choose a stream belonging to the selected class.");
+          if (admissionNumber && state.students.some((student) => (student.admission_number || "").toLocaleLowerCase() === admissionNumber.toLocaleLowerCase())) {
+            throw new Error("That admission number is already in use.");
+          }
+          if (!admissionNumber && state.students.some((student) => student.class_id === classId && student.stream_id === streamId && student.full_name.toLocaleLowerCase() === fullName.toLocaleLowerCase())) {
+            throw new Error("A learner with that name is already in this stream. Enter an admission number to distinguish them.");
+          }
+          const { error } = await supabaseClient.from("school_students").insert({
+            full_name: fullName,
+            admission_number: admissionNumber || null,
+            class_id: classId,
+            stream_id: streamId
+          });
+          if (error) throw new Error(`Could not add the student: ${error.message}`);
+        });
+      });
+
+      function handleReportAction(event) {
+        const button = event.target.closest("[data-report-action]");
+        if (!button) return;
+        const group = findReportGroup(button.dataset.reportKind, button.dataset.reportId);
+        if (!group) {
+          showToast("That report is no longer available. Refresh the school data and try again.", true);
+          return;
+        }
+        if (button.dataset.reportAction === "print") printGroupReport(group);
+        else downloadGroupReport(group);
+      }
+      document.querySelector("#class-report-body").addEventListener("click", handleReportAction);
+      document.querySelector("#stream-report-body").addEventListener("click", handleReportAction);
+
       document.querySelector("#import-button").addEventListener("click", () => elements.fileInput.click());
       document.querySelector("#help-import").addEventListener("click", () => {
-        showToast("Choose a CSV with Student, Subject and Score columns. Class, Assessment, MaxScore and Date are optional.");
+        showToast("Add students in School settings first. CSV columns: Student, Subject, Score; AdmissionNumber, Class, Stream, Assessment, MaxScore and Date are optional.");
       });
       elements.fileInput.addEventListener("change", async (event) => {
         const file = event.target.files?.[0];
         if (!file) return;
         try {
           const imported = parseCsv(await file.text());
-          state.results = imported;
+          const importedResults = imported.map((row, index) => {
+            let matches = state.students.filter((student) => {
+              const nameMatches = student.full_name.toLocaleLowerCase() === row.student.toLocaleLowerCase();
+              const admissionMatches = row.admissionNumber
+                && (student.admission_number || "").toLocaleLowerCase() === row.admissionNumber.toLocaleLowerCase();
+              const classMatches = !row.className
+                || state.classes.find((classroom) => classroom.id === student.class_id)?.name.toLocaleLowerCase() === row.className.toLocaleLowerCase();
+              const streamMatches = !row.streamName
+                || state.streams.find((stream) => stream.id === student.stream_id)?.name.toLocaleLowerCase() === row.streamName.toLocaleLowerCase();
+              return (row.admissionNumber ? admissionMatches : nameMatches) && classMatches && streamMatches;
+            });
+            if (!matches.length) {
+              throw new Error(`Row ${index + 2}: ${row.student} was not found in the student list. Add the student in School settings first.`);
+            }
+            if (matches.length > 1) {
+              throw new Error(`Row ${index + 2}: ${row.student} matches more than one student. Include their AdmissionNumber and, if needed, Class and Stream.`);
+            }
+            const student = matches[0];
+            return {
+              student_id: student.id,
+              subject: row.subject,
+              assessment: row.assessment,
+              score: row.score,
+              max_score: row.maxScore,
+              assessment_date: row.date || new Date().toISOString().slice(0, 10)
+            };
+          });
+          const uniqueResults = new Map();
+          importedResults.forEach((row) => {
+            uniqueResults.set(JSON.stringify([row.student_id, row.subject, row.assessment, row.assessment_date]), row);
+          });
+          const { error } = await supabaseClient
+            .from("school_results")
+            .upsert([...uniqueResults.values()], { onConflict: "student_id,subject,assessment,assessment_date" });
+          if (error) throw new Error(`Could not save imported results: ${error.message}`);
+          await loadWorkspaceData();
           state.page = 1;
-          refreshFilters();
           elements.search.value = "";
           render();
-          showToast(`Imported ${imported.length} ${imported.length === 1 ? "result" : "results"} from ${file.name}.`);
+          showToast(`Saved ${uniqueResults.size} ${uniqueResults.size === 1 ? "result" : "results"} from ${file.name} to the shared school data.`);
         } catch (error) {
           showToast(error instanceof Error ? error.message : "The CSV could not be imported.", true);
         } finally {
           event.target.value = "";
         }
       });
-      [elements.classFilter, elements.subjectFilter, elements.assessmentFilter].forEach((select) => {
+      elements.classFilter.addEventListener("change", () => {
+        refreshStreamFilter();
+        state.page = 1;
+        render();
+      });
+      [elements.streamFilter, elements.subjectFilter, elements.assessmentFilter].forEach((select) => {
         select.addEventListener("change", () => { state.page = 1; render(); });
       });
       elements.search.addEventListener("input", () => { state.page = 1; render(); });
@@ -1548,6 +2190,8 @@
       });
       document.querySelector("#clear-filters").addEventListener("click", () => {
         elements.classFilter.value = "";
+        refreshStreamFilter();
+        elements.streamFilter.value = "";
         elements.subjectFilter.value = "";
         elements.assessmentFilter.value = "";
         elements.search.value = "";

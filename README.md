@@ -1,7 +1,7 @@
 # Classroom Results Analysis
 
-A static exam-results analysis dashboard with Supabase email sign-in.
+A GitHub Pages results dashboard with Supabase email/password sign-in and shared school data.
 
-GitHub Pages publishes the frontend and its public Supabase publishable key. Never place passwords, personal access tokens, or Supabase secret/service-role keys in this repository.
+Authorized staff can manage classes, streams and students, import assessment results, review CBE-style summaries, and print or download class and stream reports. School records are stored in Supabase with row-level security; the public site uses the frontend and public Supabase key, not a copy of the student records.
 
-Sample dashboard results are demo data. Do not use this static prototype to store or publish identifiable student records.
+Never put passwords, access tokens, service-role keys, or student records in this repository. Follow your school's student-data privacy requirements before entering identifiable results. CBE percentage bands are reporting aids and should be checked against the school's assessment rubric.
