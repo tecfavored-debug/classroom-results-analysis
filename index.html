@@ -1,0 +1,1571 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Classroom — Results analysis</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2738;
+      --muted: #788397;
+      --line: #e8ebf1;
+      --paper: #fff;
+      --canvas: #f5f7fb;
+      --blue: #4169e1;
+      --blue-soft: #edf2ff;
+      --green: #28a879;
+      --green-soft: #eaf8f2;
+      --amber: #dc9a32;
+      --amber-soft: #fff6e8;
+      --red: #d76565;
+      --red-soft: #fff0ef;
+      --shadow: 0 3px 14px rgb(34 48 73 / 4%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app-shell[hidden], #auth-view[hidden], #admin-panel[hidden], #password-overlay[hidden] { display: none !important; }
+    .auth-page {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse at 18% 12%, rgb(65 105 225 / 9%), transparent 35%),
+        var(--canvas);
+    }
+    .auth-card {
+      width: min(100%, 410px);
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 16px 55px rgb(34 48 73 / 9%);
+    }
+    .auth-brand { display: flex; align-items: center; gap: 11px; margin-bottom: 30px; font-size: 15px; font-weight: 750; }
+    .auth-card h1 { font-size: 23px; }
+    .auth-description { margin: 8px 0 22px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .auth-field { display: grid; gap: 7px; margin-top: 15px; }
+    .auth-field label { color: #536076; font-size: 11px; font-weight: 650; }
+    .auth-field input, .admin-form input, .admin-form select {
+      height: 40px;
+      min-width: 0;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      outline: none;
+      background: white;
+      color: var(--ink);
+      font-size: 12px;
+    }
+    .auth-field input:focus, .admin-form input:focus, .admin-form select:focus { border-color: #9eb4ff; box-shadow: 0 0 0 3px rgb(65 105 225 / 9%); }
+    .auth-submit { width: 100%; margin-top: 21px; }
+    .auth-links { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
+    .text-button { padding: 0; border: 0; background: transparent; color: var(--blue); font-size: 11px; font-weight: 650; }
+    .text-button:disabled { cursor: not-allowed; opacity: .5; }
+    .auth-message { min-height: 18px; margin: 13px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .auth-message.error { color: #b94f49; }
+    .auth-message.success { color: #258d68; }
+    .password-overlay { position: fixed; inset: 0; z-index: 8; display: grid; place-items: center; padding: 20px; background: rgb(25 34 49 / 42%); }
+    .password-card { width: min(100%, 410px); padding: 25px; border: 1px solid var(--line); border-radius: 13px; background: white; box-shadow: 0 18px 55px rgb(20 30 48 / 25%); }
+    .password-card h2 { margin: 0; font-size: 18px; }
+    .password-card p { margin: 7px 0 17px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .password-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .password-message { min-height: 16px; margin: 10px 0 0; color: #b94f49; font-size: 11px; }
+
+    .app-shell { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 3;
+      display: flex;
+      width: 238px;
+      flex-direction: column;
+      padding: 27px 16px 18px;
+      border-right: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 11px;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 750;
+      letter-spacing: -.4px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--blue);
+      color: white;
+    }
+
+    .brand-mark svg { width: 20px; height: 20px; }
+    .nav-label {
+      margin: 38px 11px 10px;
+      color: #a0a9b8;
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: 1.15px;
+      text-transform: uppercase;
+    }
+
+    .nav-link {
+      display: flex;
+      min-height: 42px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      border-radius: 9px;
+      color: #69758a;
+      font-size: 13px;
+      font-weight: 560;
+    }
+
+    .nav-link.active { background: var(--blue-soft); color: var(--blue); font-weight: 680; }
+    .nav-link svg { width: 17px; height: 17px; flex: 0 0 auto; }
+    .nav-count {
+      margin-left: auto;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: #e3eaff;
+      font-size: 10px;
+    }
+
+    .sidebar-bottom { margin-top: auto; }
+    .help-card {
+      padding: 15px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fbfcfe;
+    }
+    .help-card strong { display: block; margin-bottom: 5px; font-size: 12px; }
+    .help-card p { margin: 0 0 11px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .help-card button {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 16px 8px 0;
+      border-top: 1px solid var(--line);
+    }
+    .profile-details { min-width: 0; }
+    .avatar {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 50%;
+      background: #fdebd8;
+      color: #ac6428;
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .profile strong { display: block; font-size: 11px; }
+    .profile span { color: var(--muted); font-size: 10px; }
+
+    .main { width: calc(100% - 238px); margin-left: 238px; }
+    .topbar {
+      display: flex;
+      height: 72px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 38px;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .breadcrumb strong { color: var(--ink); font-weight: 650; }
+    .top-actions { display: flex; align-items: center; gap: 13px; }
+    .term-select, .icon-button {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: #536076;
+    }
+    .term-select { padding: 0 30px 0 11px; font-size: 11px; }
+    .icon-button { display: grid; width: 36px; place-items: center; }
+    .icon-button svg { width: 16px; height: 16px; }
+    .main-content { max-width: 1460px; margin: 0 auto; padding: 32px 38px 46px; }
+    .page-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 22px;
+      margin-bottom: 25px;
+    }
+    h1 { margin: 0; font-size: 25px; letter-spacing: -.7px; }
+    .subtitle { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+    .heading-actions { display: flex; gap: 9px; }
+    .button {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: #536076;
+      font-size: 11px;
+      font-weight: 650;
+      transition: background .15s, border-color .15s, transform .15s;
+    }
+    .button:hover { border-color: #cbd4e4; background: #fbfcff; }
+    .button:active { transform: translateY(1px); }
+    .button svg { width: 15px; height: 15px; }
+    .button.primary { border-color: var(--blue); background: var(--blue); color: white; }
+    .button.primary:hover { border-color: #3459cc; background: #3459cc; }
+    .button:disabled { cursor: not-allowed; opacity: .48; }
+    .hidden-input { display: none; }
+
+    .filter-bar {
+      display: flex;
+      min-height: 60px;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 18px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .filter-caption { margin: 0 3px 0 2px; color: #79859a; font-size: 11px; font-weight: 650; }
+    .filter-control {
+      height: 34px;
+      min-width: 132px;
+      padding: 0 28px 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      outline: none;
+      background: #fff;
+      color: #536076;
+      font-size: 11px;
+    }
+    .filter-control:focus, .search-wrap:focus-within { border-color: #9eb4ff; box-shadow: 0 0 0 3px rgb(65 105 225 / 9%); }
+    .search-wrap {
+      display: flex;
+      width: 220px;
+      height: 34px;
+      align-items: center;
+      gap: 7px;
+      margin-left: auto;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: #929daf;
+    }
+    .search-wrap svg { width: 14px; height: 14px; flex: 0 0 auto; }
+    .search-wrap input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--ink); font-size: 11px; }
+    .search-wrap input::placeholder { color: #a3acba; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 15px; margin-bottom: 18px; }
+    .metric-card {
+      min-height: 129px;
+      padding: 17px 18px 15px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .metric-label { color: #7a8698; font-size: 11px; font-weight: 600; }
+    .metric-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; }
+    .metric-icon svg { width: 15px; height: 15px; }
+    .metric-icon.blue { background: var(--blue-soft); color: var(--blue); }
+    .metric-icon.green { background: var(--green-soft); color: var(--green); }
+    .metric-icon.amber { background: var(--amber-soft); color: var(--amber); }
+    .metric-icon.red { background: var(--red-soft); color: var(--red); }
+    .metric-value { margin-top: 6px; font-size: 25px; font-weight: 740; letter-spacing: -.7px; }
+    .metric-foot { display: flex; align-items: center; gap: 5px; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .metric-foot .positive { color: var(--green); font-weight: 700; }
+    .metric-foot .neutral { color: #8390a3; }
+
+    .analysis-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, .9fr); gap: 16px; margin-bottom: 18px; }
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 18px 19px 0; }
+    .panel-title { margin: 0; font-size: 13px; font-weight: 700; }
+    .panel-description { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+    .panel-select {
+      height: 29px;
+      padding: 0 26px 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: white;
+      color: #68758a;
+      font-size: 10px;
+    }
+    .chart-wrap { position: relative; height: 220px; padding: 14px 18px 10px; }
+    #subject-chart { width: 100%; height: 100%; overflow: visible; }
+    .chart-empty { display: grid; height: 100%; place-items: center; color: var(--muted); font-size: 11px; }
+    .distribution { padding: 20px 19px 18px; }
+    .distribution-list { display: grid; gap: 16px; margin-top: 21px; }
+    .band-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; color: #69758a; font-size: 10px; }
+    .band-label strong { color: #364155; font-size: 10px; }
+    .progress { height: 7px; overflow: hidden; border-radius: 6px; background: #f0f2f6; }
+    .progress span { display: block; height: 100%; border-radius: inherit; transition: width .25s ease; }
+    .band-excellent { background: #31ad84; }
+    .band-good { background: #6b8bf0; }
+    .band-average { background: #e9af55; }
+    .band-needs-work { background: #e37d76; }
+    .distribution-note { margin: 20px 0 0; padding-top: 13px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.55; }
+
+    .table-panel { overflow: hidden; }
+    .table-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 19px; }
+    .table-heading .panel-description { margin-top: 4px; }
+    .table-tools { display: flex; align-items: center; gap: 8px; }
+    .table-tools .button { min-height: 31px; padding: 0 10px; font-size: 10px; }
+    .admin-form { display: grid; grid-template-columns: minmax(180px, 1fr) 150px auto; align-items: end; gap: 10px; padding: 0 19px 16px; }
+    .admin-form .auth-field { margin: 0; }
+    .admin-form input, .admin-form select { height: 34px; font-size: 11px; }
+    .admin-table-wrap { border-top: 1px solid var(--line); }
+    .admin-role-select { height: 30px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: white; color: #536076; font-size: 10px; }
+    .admin-actions { display: flex; align-items: center; gap: 8px; }
+    .admin-actions .button { min-height: 29px; font-size: 10px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+    thead { background: #fafbfd; }
+    th { height: 38px; padding: 0 18px; color: #8893a4; font-size: 9px; font-weight: 700; letter-spacing: .45px; text-transform: uppercase; }
+    td { height: 51px; padding: 0 18px; border-top: 1px solid #f0f2f6; color: #4f5b70; font-size: 10px; }
+    th:first-child, td:first-child { padding-left: 20px; }
+    .student-cell { display: flex; align-items: center; gap: 9px; color: #344055; font-weight: 650; }
+    .student-avatar { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 8px; background: #f1f3f8; color: #738098; font-size: 9px; font-weight: 700; }
+    .score-cell { display: flex; min-width: 134px; align-items: center; gap: 9px; }
+    .score-track { width: 62px; height: 5px; overflow: hidden; border-radius: 5px; background: #edf0f5; }
+    .score-track span { display: block; height: 100%; border-radius: inherit; background: #6e8bed; }
+    .score-track span.low { background: #e47b73; }
+    .grade-pill { display: inline-flex; min-width: 30px; justify-content: center; padding: 4px 6px; border-radius: 5px; font-size: 9px; font-weight: 750; }
+    .grade-pill.ee { background: var(--green-soft); color: #258d68; }
+    .grade-pill.me { background: var(--blue-soft); color: #4169c0; }
+    .grade-pill.ae { background: var(--amber-soft); color: #b57c22; }
+    .grade-pill.be { background: var(--red-soft); color: #c35c56; }
+    .status { display: inline-flex; align-items: center; gap: 5px; color: #328d6d; font-size: 9px; font-weight: 650; }
+    .status::before { width: 5px; height: 5px; border-radius: 50%; background: currentColor; content: ""; }
+    .status.me { color: #5271c8; }
+    .status.ae { color: #b57c22; }
+    .status.be { color: #c66d58; }
+    .table-footer { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: 12px; padding: 0 19px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+    .pagination { display: flex; align-items: center; gap: 7px; }
+    .page-button { display: grid; width: 26px; height: 26px; place-items: center; border: 1px solid var(--line); border-radius: 6px; background: white; color: #68758a; }
+    .page-button:disabled { cursor: not-allowed; opacity: .4; }
+    .page-button svg { width: 12px; height: 12px; }
+    .empty-row { height: 100px; color: var(--muted); text-align: center; }
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 5;
+      max-width: min(390px, calc(100vw - 32px));
+      padding: 12px 16px;
+      border: 1px solid #dfe6f3;
+      border-radius: 9px;
+      background: white;
+      box-shadow: 0 7px 25px rgb(34 48 73 / 12%);
+      color: #364155;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .toast.error { border-color: #f2ceca; color: #a6433c; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+
+    @media (max-width: 1050px) {
+      .sidebar { width: 205px; }
+      .main { width: calc(100% - 205px); margin-left: 205px; }
+      .topbar { padding-right: 25px; padding-left: 25px; }
+      .main-content { padding-right: 25px; padding-left: 25px; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .analysis-grid { grid-template-columns: minmax(0, 1.4fr) minmax(235px, .9fr); }
+    }
+    @media (max-width: 760px) {
+      .sidebar { position: static; width: 60px; flex: 0 0 60px; padding: 19px 8px; }
+      .brand { justify-content: center; padding: 0; }
+      .brand-name, .nav-label, .nav-link span, .nav-count, .sidebar-bottom { display: none; }
+      .nav-label + .nav-link { margin-top: 35px; }
+      .nav-link { justify-content: center; padding: 0; }
+      .main { width: calc(100% - 60px); margin-left: 0; }
+      .topbar { height: 60px; padding: 0 16px; }
+      .main-content { padding: 24px 16px 32px; }
+      .page-heading { flex-direction: column; margin-bottom: 18px; }
+      .heading-actions { width: 100%; }
+      .heading-actions .button { flex: 1; }
+      .analysis-grid { grid-template-columns: 1fr; }
+      .filter-bar { flex-wrap: wrap; }
+      .search-wrap { width: 100%; margin-left: 0; }
+      .filter-control { flex: 1; min-width: 110px; }
+      .filter-caption { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .breadcrumb { font-size: 10px; }
+      .top-actions { gap: 7px; }
+      .term-select { max-width: 130px; }
+      .icon-button { display: none; }
+      #sign-out-button { min-height: 32px; padding: 0 8px; font-size: 10px; }
+      h1 { font-size: 22px; }
+      .metric-grid { gap: 9px; }
+      .metric-card { min-height: 117px; padding: 13px; }
+      .metric-value { font-size: 22px; }
+      .metric-label { font-size: 10px; }
+      .table-heading { align-items: flex-start; flex-direction: column; }
+      .table-tools { width: 100%; }
+      .table-tools .button { flex: 1; }
+      .auth-card { padding: 24px; }
+      .admin-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="auth-page" id="auth-view" aria-labelledby="auth-title">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>Classroom</span>
+      </div>
+      <h1 id="auth-title">Welcome back</h1>
+      <p class="auth-description">Sign in with the email address and password for your school account.</p>
+      <form id="login-form">
+        <div class="auth-field">
+          <label for="login-email">Email address</label>
+          <input id="login-email" type="email" autocomplete="username" required placeholder="you@school.ac.ke">
+        </div>
+        <div class="auth-field">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password" required placeholder="Enter your password">
+        </div>
+        <button type="submit" class="button primary auth-submit" id="auth-submit">Sign in</button>
+      </form>
+      <div class="auth-links">
+        <button type="button" class="text-button" id="reset-password">Forgot password?</button>
+        <span style="color:var(--muted);font-size:10px">Accounts are invite-only</span>
+      </div>
+      <p class="auth-message" id="auth-message" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <div class="password-overlay" id="password-overlay" hidden>
+    <section class="password-card" role="dialog" aria-modal="true" aria-labelledby="password-title">
+      <h2 id="password-title">Set a new password</h2>
+      <p id="password-description">Choose a strong password for your account. Use at least 12 characters.</p>
+      <form id="password-form">
+        <div class="auth-field">
+          <label for="new-password">New password</label>
+          <input id="new-password" type="password" autocomplete="new-password" minlength="12" required>
+        </div>
+        <div class="auth-field">
+          <label for="confirm-password">Confirm new password</label>
+          <input id="confirm-password" type="password" autocomplete="new-password" minlength="12" required>
+        </div>
+        <p class="password-message" id="password-message" role="status" aria-live="polite"></p>
+        <div class="password-actions">
+          <button type="button" class="button" id="cancel-password">Cancel</button>
+          <button type="submit" class="button primary" id="save-password">Save password</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="app-shell" id="app-shell" hidden>
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="brand-name">Classroom</span>
+      </div>
+      <p class="nav-label">Workspace</p>
+      <nav>
+        <a class="nav-link" href="#overview">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7"/></svg>
+          <span>Overview</span>
+        </a>
+        <a class="nav-link active" href="#results" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19V5m0 14h14M9 15l3-4 3 2 4-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Results analysis</span>
+          <span class="nav-count" id="nav-count">—</span>
+        </a>
+        <a class="nav-link" href="#students">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="8" r="3.3" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 19c.4-3 2.2-4.5 5.5-4.5 3.2 0 5.1 1.5 5.5 4.5m.5-13a3.3 3.3 0 0 1 0 6.4m2.5 2.3c2 .6 3.1 2.1 3.5 4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>Students</span>
+        </a>
+        <a class="nav-link" href="#assessments">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3.8h7l4 4V20a1.2 1.2 0 0 1-1.2 1.2H7A1.2 1.2 0 0 1 5.8 20V5A1.2 1.2 0 0 1 7 3.8Z" stroke="currentColor" stroke-width="1.7"/><path d="M14 4v4h4m-9 4h6m-6 4h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>Assessments</span>
+        </a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <strong>Need a hand?</strong>
+          <p>Import a spreadsheet to start exploring your class results.</p>
+          <button type="button" id="help-import">Learn how to import →</button>
+        </div>
+        <div class="profile">
+          <div class="avatar" id="profile-avatar" aria-hidden="true">—</div>
+          <div class="profile-details">
+            <strong id="profile-email">Signed in</strong>
+            <span id="profile-role">Teacher account</span>
+            <button type="button" class="text-button" id="change-password">Set / change password</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main" id="results">
+      <header class="topbar">
+        <div class="breadcrumb">Workspace <span aria-hidden="true">/</span> <strong>Results analysis</strong></div>
+        <div class="top-actions">
+          <label class="visually-hidden" for="term-select">Academic term</label>
+          <select class="term-select" id="term-select" aria-label="Academic term">
+            <option>Spring term 2025</option>
+          </select>
+          <button type="button" class="button" id="sign-out-button">Sign out</button>
+          <button type="button" class="icon-button" id="top-export" aria-label="Export visible results" title="Export visible results">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5v11m0 0 4-4m-4 4-4-4M5 15.5v3A2 2 0 0 0 7 20.5h10a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="main-content" id="overview">
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <h1 id="page-title">Results analysis</h1>
+            <p class="subtitle">A clear view of student progress and class performance.</p>
+          </div>
+          <div class="heading-actions">
+            <button type="button" class="button" id="export-button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5v11m0 0 4-4m-4 4-4-4M5 15.5v3A2 2 0 0 0 7 20.5h10a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Export report
+            </button>
+            <button type="button" class="button primary" id="import-button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15V4m0 0L8 8m4-4 4 4M5 14.5v3A2 2 0 0 0 7 19.5h10a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Import results
+            </button>
+          </div>
+        </section>
+
+        <input class="hidden-input" id="file-input" type="file" accept=".csv,text/csv">
+
+        <section class="panel table-panel" id="admin-panel" aria-labelledby="admin-title" hidden>
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="admin-title">Account management</h2>
+              <p class="panel-description">Invite staff and set account roles. Only admins can manage accounts.</p>
+            </div>
+            <div class="table-tools">
+              <button type="button" class="button" id="refresh-users">Refresh accounts</button>
+            </div>
+          </header>
+          <form class="admin-form" id="invite-form">
+            <div class="auth-field">
+              <label for="invite-email">Invite by email</label>
+              <input id="invite-email" type="email" required placeholder="staff@school.ac.ke">
+            </div>
+            <div class="auth-field">
+              <label for="invite-role">Account role</label>
+              <select id="invite-role">
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <button type="submit" class="button primary" id="invite-submit">Send invitation</button>
+          </form>
+          <div class="table-wrap admin-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Email</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Account created</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody id="users-body"><tr><td class="empty-row" colspan="4">Loading accounts…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="filter-bar" aria-label="Filter results">
+          <span class="filter-caption">FILTER BY</span>
+          <label class="visually-hidden" for="class-filter">Class</label>
+          <select class="filter-control" id="class-filter"><option value="">All classes</option></select>
+          <label class="visually-hidden" for="subject-filter">Subject</label>
+          <select class="filter-control" id="subject-filter"><option value="">All subjects</option></select>
+          <label class="visually-hidden" for="assessment-filter">Assessment</label>
+          <select class="filter-control" id="assessment-filter"><option value="">All assessments</option></select>
+          <label class="search-wrap" for="search-input">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <input id="search-input" type="search" placeholder="Search students..." autocomplete="off">
+          </label>
+        </section>
+
+        <section class="metric-grid" aria-label="Class performance summary">
+          <article class="metric-card">
+            <div class="metric-top">
+              <span class="metric-label">Students assessed</span>
+              <span class="metric-icon blue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19c.4-3 2.2-4.5 5.5-4.5s5.1 1.5 5.5 4.5m.8-12.5a3.2 3.2 0 0 1 0 6.2m2.2 2.3c1.8.6 2.8 1.9 3.1 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="metric-value" id="metric-students">—</div>
+            <div class="metric-foot"><span class="neutral">Unique students in this view</span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top">
+              <span class="metric-label">Total marks</span>
+              <span class="metric-icon amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4h10M7 8h10M8 4v11.2A3.8 3.8 0 0 0 11.8 19h.4a3.8 3.8 0 0 0 3.8-3.8V4m-8 9h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="metric-value" id="metric-total">—</div>
+            <div class="metric-foot"><span class="neutral">Earned / possible marks</span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top">
+              <span class="metric-label">Average score</span>
+              <span class="metric-icon green" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 18.5V5m0 13.5h16M7.5 14l3.3-3.7 3 2.1 5.2-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="metric-value" id="metric-average">—</div>
+            <div class="metric-foot"><span class="neutral" id="average-caption">Weighted by possible marks</span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top">
+              <span class="metric-label">Meeting / exceeding</span>
+              <span class="metric-icon green" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.4 4.2L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/></svg></span>
+            </div>
+            <div class="metric-value" id="metric-attainment">—</div>
+            <div class="metric-foot"><span class="neutral">EE + ME results · working band 70%+</span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top">
+              <span class="metric-label">Top subject</span>
+              <span class="metric-icon red" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9L12 3.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="metric-value" id="metric-top-subject">—</div>
+            <div class="metric-foot"><span class="neutral" id="top-subject-caption">By average score</span></div>
+          </article>
+        </section>
+
+        <section class="analysis-grid" aria-label="Performance charts">
+          <article class="panel">
+            <header class="panel-header">
+              <div>
+                <h2 class="panel-title" id="chart-title">Subject performance</h2>
+                <p class="panel-description" id="chart-description">Average score by subject, shown as a percentage.</p>
+              </div>
+              <label>
+                <span class="visually-hidden">Chart grouping</span>
+                <select class="panel-select" id="chart-mode" aria-label="Chart grouping">
+                  <option value="subject">By subject</option>
+                  <option value="class">By class</option>
+                  <option value="assessment">By assessment</option>
+                </select>
+              </label>
+            </header>
+            <div class="chart-wrap" id="chart-wrap">
+              <svg id="subject-chart" role="img" aria-label="Average score chart"></svg>
+            </div>
+          </article>
+          <article class="panel">
+            <header class="panel-header">
+              <div>
+                <h2 class="panel-title">Score distribution</h2>
+                <p class="panel-description">How results are spread across score bands.</p>
+              </div>
+            </header>
+            <div class="distribution">
+              <div class="distribution-list" id="distribution-list"></div>
+              <p class="distribution-note" id="distribution-note">CBE levels: EE (85%+), ME (70–84%), AE (50–69%), and BE (below 50%). Percentage bands are a reporting aid; confirm cutoffs with your school’s assessment rubric.</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel table-panel" id="learner-summary" aria-labelledby="learner-summary-title">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="learner-summary-title">Learner totals &amp; averages</h2>
+              <p class="panel-description" id="learner-summary-description">Totals and CBE achievement level for each learner in the selected view.</p>
+            </div>
+            <div class="table-tools">
+              <button type="button" class="button" id="summary-export">Download summary CSV</button>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Learner</th>
+                  <th scope="col">Class</th>
+                  <th scope="col">Assessments</th>
+                  <th scope="col">Total marks</th>
+                  <th scope="col">Average</th>
+                  <th scope="col">CBE level</th>
+                </tr>
+              </thead>
+              <tbody id="learner-summary-body"></tbody>
+            </table>
+          </div>
+          <footer class="table-footer">
+            <span id="learner-summary-count">Showing —</span>
+          </footer>
+        </section>
+
+        <section class="panel table-panel" id="students" aria-labelledby="table-title">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="table-title">Student results</h2>
+              <p class="panel-description" id="table-description">Individual assessment scores for the selected class.</p>
+            </div>
+            <div class="table-tools">
+              <button type="button" class="button" id="clear-filters">Clear filters</button>
+              <button type="button" class="button" id="table-export">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5v11m0 0 4-4m-4 4-4-4M5 15.5v3A2 2 0 0 0 7 20.5h10a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Download CSV
+              </button>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Student</th>
+                  <th scope="col">Class</th>
+                  <th scope="col">Subject</th>
+                  <th scope="col">Assessment</th>
+                  <th scope="col">Score</th>
+                  <th scope="col">CBE level</th>
+                  <th scope="col">Achievement</th>
+                  <th scope="col">Date</th>
+                </tr>
+              </thead>
+              <tbody id="results-body"></tbody>
+            </table>
+          </div>
+          <footer class="table-footer">
+            <span id="pagination-label">Showing —</span>
+            <div class="pagination">
+              <button type="button" class="page-button" id="previous-page" aria-label="Previous page">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14.5 5-7 7 7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <span id="page-label">1 / 1</span>
+              <button type="button" class="page-button" id="next-page" aria-label="Next page">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9.5 5 7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </footer>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const sampleResults = [
+        { student: "Ava Thompson", className: "Year 8A", subject: "Mathematics", assessment: "Term 2 exam", score: 87, maxScore: 100, date: "2025-05-22" },
+        { student: "Noah Williams", className: "Year 8A", subject: "Mathematics", assessment: "Term 2 exam", score: 74, maxScore: 100, date: "2025-05-22" },
+        { student: "Olivia Chen", className: "Year 8A", subject: "Mathematics", assessment: "Term 2 exam", score: 93, maxScore: 100, date: "2025-05-22" },
+        { student: "Liam Patel", className: "Year 8A", subject: "Mathematics", assessment: "Term 2 exam", score: 61, maxScore: 100, date: "2025-05-22" },
+        { student: "Ava Thompson", className: "Year 8A", subject: "English", assessment: "Term 2 essay", score: 82, maxScore: 100, date: "2025-05-19" },
+        { student: "Noah Williams", className: "Year 8A", subject: "English", assessment: "Term 2 essay", score: 78, maxScore: 100, date: "2025-05-19" },
+        { student: "Olivia Chen", className: "Year 8A", subject: "English", assessment: "Term 2 essay", score: 91, maxScore: 100, date: "2025-05-19" },
+        { student: "Liam Patel", className: "Year 8A", subject: "English", assessment: "Term 2 essay", score: 47, maxScore: 100, date: "2025-05-19" },
+        { student: "Ava Thompson", className: "Year 8A", subject: "Science", assessment: "Lab assessment", score: 94, maxScore: 100, date: "2025-05-16" },
+        { student: "Noah Williams", className: "Year 8A", subject: "Science", assessment: "Lab assessment", score: 68, maxScore: 100, date: "2025-05-16" },
+        { student: "Olivia Chen", className: "Year 8A", subject: "Science", assessment: "Lab assessment", score: 88, maxScore: 100, date: "2025-05-16" },
+        { student: "Liam Patel", className: "Year 8A", subject: "Science", assessment: "Lab assessment", score: 54, maxScore: 100, date: "2025-05-16" },
+        { student: "Emma Johnson", className: "Year 8B", subject: "Mathematics", assessment: "Term 2 exam", score: 89, maxScore: 100, date: "2025-05-22" },
+        { student: "Ethan Brown", className: "Year 8B", subject: "Mathematics", assessment: "Term 2 exam", score: 66, maxScore: 100, date: "2025-05-22" },
+        { student: "Mia Garcia", className: "Year 8B", subject: "Mathematics", assessment: "Term 2 exam", score: 76, maxScore: 100, date: "2025-05-22" },
+        { student: "James Wilson", className: "Year 8B", subject: "Mathematics", assessment: "Term 2 exam", score: 42, maxScore: 100, date: "2025-05-22" },
+        { student: "Emma Johnson", className: "Year 8B", subject: "English", assessment: "Term 2 essay", score: 95, maxScore: 100, date: "2025-05-19" },
+        { student: "Ethan Brown", className: "Year 8B", subject: "English", assessment: "Term 2 essay", score: 71, maxScore: 100, date: "2025-05-19" },
+        { student: "Mia Garcia", className: "Year 8B", subject: "English", assessment: "Term 2 essay", score: 83, maxScore: 100, date: "2025-05-19" },
+        { student: "James Wilson", className: "Year 8B", subject: "English", assessment: "Term 2 essay", score: 59, maxScore: 100, date: "2025-05-19" },
+        { student: "Emma Johnson", className: "Year 8B", subject: "Science", assessment: "Lab assessment", score: 86, maxScore: 100, date: "2025-05-16" },
+        { student: "Ethan Brown", className: "Year 8B", subject: "Science", assessment: "Lab assessment", score: 62, maxScore: 100, date: "2025-05-16" },
+        { student: "Mia Garcia", className: "Year 8B", subject: "Science", assessment: "Lab assessment", score: 79, maxScore: 100, date: "2025-05-16" },
+        { student: "James Wilson", className: "Year 8B", subject: "Science", assessment: "Lab assessment", score: 51, maxScore: 100, date: "2025-05-16" }
+      ];
+
+      const state = { results: sampleResults, page: 1, pageSize: 8, toastTimer: 0 };
+      const cbeBands = [
+        { code: "EE", descriptor: "Exceeding expectations", range: "85–100%", className: "band-excellent", gradeClass: "ee", minimum: 85 },
+        { code: "ME", descriptor: "Meeting expectations", range: "70–84%", className: "band-good", gradeClass: "me", minimum: 70 },
+        { code: "AE", descriptor: "Approaching expectations", range: "50–69%", className: "band-average", gradeClass: "ae", minimum: 50 },
+        { code: "BE", descriptor: "Below expectations", range: "Below 50%", className: "band-needs-work", gradeClass: "be", minimum: 0 }
+      ];
+      const elements = {
+        classFilter: document.querySelector("#class-filter"),
+        subjectFilter: document.querySelector("#subject-filter"),
+        assessmentFilter: document.querySelector("#assessment-filter"),
+        search: document.querySelector("#search-input"),
+        chartMode: document.querySelector("#chart-mode"),
+        fileInput: document.querySelector("#file-input"),
+        body: document.querySelector("#results-body"),
+        toast: document.querySelector("#toast")
+      };
+      const authElements = {
+        view: document.querySelector("#auth-view"),
+        shell: document.querySelector("#app-shell"),
+        form: document.querySelector("#login-form"),
+        email: document.querySelector("#login-email"),
+        password: document.querySelector("#login-password"),
+        submit: document.querySelector("#auth-submit"),
+        reset: document.querySelector("#reset-password"),
+        message: document.querySelector("#auth-message"),
+        usersBody: document.querySelector("#users-body")
+      };
+      let supabaseClient = null;
+      let signedInUser = null;
+      let signedInRole = null;
+      let passwordRecoveryRequired = false;
+
+      const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[character]);
+      const percentage = (row) => row.score / row.maxScore * 100;
+      const formatMark = (mark) => Number(mark.toFixed(2)).toLocaleString("en");
+      const cbeLevel = (score) => cbeBands.find((band) => score >= band.minimum);
+      const formatDate = (date) => {
+        if (!date) return "—";
+        const parsed = new Date(`${date}T00:00:00`);
+        return Number.isNaN(parsed.getTime()) ? date : new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric" }).format(parsed);
+      };
+      const uniqueValues = (key) => [...new Set(state.results.map((row) => row[key]))].sort((a, b) => a.localeCompare(b));
+
+      function showToast(message, isError = false) {
+        window.clearTimeout(state.toastTimer);
+        elements.toast.textContent = message;
+        elements.toast.classList.toggle("error", isError);
+        elements.toast.hidden = false;
+        state.toastTimer = window.setTimeout(() => { elements.toast.hidden = true; }, 4200);
+      }
+
+      function setAuthMessage(message, kind = "") {
+        authElements.message.textContent = message;
+        authElements.message.className = `auth-message ${kind}`.trim();
+      }
+
+      function showSignedOutView() {
+        signedInUser = null;
+        signedInRole = null;
+        passwordRecoveryRequired = false;
+        authElements.shell.hidden = true;
+        authElements.view.hidden = false;
+        document.querySelector("#password-overlay").hidden = true;
+        document.querySelector("#admin-panel").hidden = true;
+        authElements.password.value = "";
+        document.querySelector("#password-form").reset();
+        state.results = sampleResults;
+        state.page = 1;
+        elements.classFilter.value = "";
+        elements.subjectFilter.value = "";
+        elements.assessmentFilter.value = "";
+        elements.search.value = "";
+        refreshFilters();
+        render();
+      }
+
+      async function applySession(session) {
+        if (!session) {
+          showSignedOutView();
+          return;
+        }
+        const { data: profile, error } = await supabaseClient
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .maybeSingle();
+        if (error || !profile || !["admin", "teacher"].includes(profile.role)) {
+          const message = error
+            ? `Could not load your account role: ${error.message}`
+            : "Your account has no valid role. Ask an administrator to check your account.";
+          const { error: signOutError } = await supabaseClient.auth.signOut();
+          showSignedOutView();
+          setAuthMessage(signOutError ? `${message} Sign-out also failed: ${signOutError.message}` : message, "error");
+          return;
+        }
+
+        signedInUser = session.user;
+        signedInRole = profile.role;
+        authElements.view.hidden = true;
+        authElements.shell.hidden = false;
+        authElements.password.value = "";
+        const email = session.user.email || "Signed in";
+        const initials = email.split("@")[0].split(/[._-]+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+        document.querySelector("#profile-email").textContent = email;
+        document.querySelector("#profile-role").textContent = profile.role === "admin" ? "Administrator" : "Teacher account";
+        document.querySelector("#profile-avatar").textContent = initials || "U";
+        document.querySelector("#admin-panel").hidden = profile.role !== "admin";
+        if (profile.role === "admin") await loadAdminUsers();
+      }
+
+      async function readFunctionError(error) {
+        if (error.context && typeof error.context.clone === "function") {
+          const details = await error.context.clone().json().catch(() => null);
+          if (typeof details?.error === "string") return details.error;
+        }
+        return error.message || "The account-management request failed.";
+      }
+
+      async function adminRequest(body) {
+        const { data, error } = await supabaseClient.functions.invoke("admin-users", { body });
+        if (error) throw new Error(await readFunctionError(error));
+        if (data?.error) throw new Error(data.error);
+        return data;
+      }
+
+      async function loadAdminUsers() {
+        if (signedInRole !== "admin") return;
+        authElements.usersBody.innerHTML = '<tr><td class="empty-row" colspan="4">Loading accounts…</td></tr>';
+        try {
+          const data = await adminRequest({ action: "list" });
+          if (!Array.isArray(data?.users)) throw new Error("The account list response was invalid.");
+          if (!data.users.length) {
+            authElements.usersBody.innerHTML = '<tr><td class="empty-row" colspan="4">No accounts found.</td></tr>';
+            return;
+          }
+          authElements.usersBody.innerHTML = data.users.map((user) => {
+            if (!["admin", "teacher"].includes(user.role)) throw new Error("An account has an invalid role. Check its profile in Supabase.");
+            const isSelf = user.id === signedInUser.id;
+            return `<tr>
+              <td>${escapeHtml(user.email || "No email")}</td>
+              <td><select class="admin-role-select" data-role-for="${escapeHtml(user.id)}" aria-label="Role for ${escapeHtml(user.email || "account")}" ${isSelf ? "disabled" : ""}>
+                <option value="teacher" ${user.role === "teacher" ? "selected" : ""}>Teacher</option>
+                <option value="admin" ${user.role === "admin" ? "selected" : ""}>Admin</option>
+              </select></td>
+              <td>${escapeHtml(formatDate((user.createdAt || "").slice(0, 10)))}</td>
+              <td><div class="admin-actions">${isSelf
+                ? '<span class="panel-description">Current account</span>'
+                : `<button type="button" class="button" data-save-role="${escapeHtml(user.id)}">Save role</button>`}</div></td>
+            </tr>`;
+          }).join("");
+        } catch (error) {
+          authElements.usersBody.innerHTML = '<tr><td class="empty-row" colspan="4">Could not load accounts.</td></tr>';
+          showToast(error instanceof Error ? error.message : "Could not load accounts.", true);
+        }
+      }
+
+      function initializeAuthentication() {
+        const config = window.APP_CONFIG || {};
+        if (!config.supabaseUrl || !config.supabaseAnonKey || !window.supabase?.createClient) {
+          authElements.submit.disabled = true;
+          authElements.reset.disabled = true;
+          setAuthMessage("Authentication is not configured. Follow SUPABASE_SETUP.md, then add your project URL and public anon key to supabase-config.js.", "error");
+          return;
+        }
+        supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+          window.setTimeout(() => {
+            applySession(session)
+              .then(() => {
+                if (event === "PASSWORD_RECOVERY" && session) openPasswordDialog(true);
+              })
+              .catch((error) => {
+                showSignedOutView();
+                setAuthMessage(error instanceof Error ? error.message : "Could not verify your account.", "error");
+              });
+          }, 0);
+        });
+        supabaseClient.auth.getSession().then(({ data, error }) => {
+          if (error) {
+            setAuthMessage(`Could not check your session: ${error.message}`, "error");
+            return;
+          }
+          if (data.session) return applySession(data.session);
+        }).catch((error) => {
+          setAuthMessage(error instanceof Error ? error.message : "Could not check your session.", "error");
+        });
+      }
+
+      authElements.form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!supabaseClient) return;
+        authElements.submit.disabled = true;
+        setAuthMessage("Signing in…");
+        try {
+          const { error } = await supabaseClient.auth.signInWithPassword({
+            email: authElements.email.value.trim(),
+            password: authElements.password.value
+          });
+          if (error) throw error;
+          setAuthMessage("Signed in. Loading your account…", "success");
+        } catch (error) {
+          setAuthMessage(error instanceof Error ? error.message : "Sign-in failed.", "error");
+        } finally {
+          authElements.submit.disabled = false;
+        }
+      });
+
+      authElements.reset.addEventListener("click", async () => {
+        if (!supabaseClient) return;
+        const email = authElements.email.value.trim();
+        if (!email) {
+          setAuthMessage("Enter your email address first so we can send a reset link.", "error");
+          authElements.email.focus();
+          return;
+        }
+        authElements.reset.disabled = true;
+        try {
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+          if (error) throw error;
+          setAuthMessage("If an account exists for that email, a password-reset link will be sent.", "success");
+        } catch (error) {
+          setAuthMessage(error instanceof Error ? error.message : "Could not send a password-reset link.", "error");
+        } finally {
+          authElements.reset.disabled = false;
+        }
+      });
+
+      document.querySelector("#sign-out-button").addEventListener("click", async () => {
+        if (!supabaseClient) return;
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) showToast(`Could not sign out: ${error.message}`, true);
+      });
+
+      function openPasswordDialog(required = false) {
+        passwordRecoveryRequired = required;
+        document.querySelector("#password-description").textContent = required
+          ? "Choose a new password to complete your password reset. Use at least 12 characters."
+          : "Choose a strong password for your account. Use at least 12 characters.";
+        document.querySelector("#cancel-password").hidden = required;
+        document.querySelector("#password-message").textContent = "";
+        document.querySelector("#password-form").reset();
+        document.querySelector("#password-overlay").hidden = false;
+        document.querySelector("#new-password").focus();
+      }
+
+      function closePasswordDialog() {
+        if (passwordRecoveryRequired) return;
+        document.querySelector("#password-overlay").hidden = true;
+        document.querySelector("#password-form").reset();
+      }
+
+      document.querySelector("#change-password").addEventListener("click", () => openPasswordDialog());
+      document.querySelector("#cancel-password").addEventListener("click", closePasswordDialog);
+      document.querySelector("#password-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const password = document.querySelector("#new-password").value;
+        const confirmation = document.querySelector("#confirm-password").value;
+        const message = document.querySelector("#password-message");
+        const button = document.querySelector("#save-password");
+        if (password !== confirmation) {
+          message.textContent = "The passwords do not match.";
+          return;
+        }
+        button.disabled = true;
+        message.textContent = "";
+        try {
+          const { error } = await supabaseClient.auth.updateUser({ password });
+          if (error) throw error;
+          passwordRecoveryRequired = false;
+          document.querySelector("#password-overlay").hidden = true;
+          event.target.reset();
+          showToast("Password updated.");
+        } catch (error) {
+          message.textContent = error instanceof Error ? error.message : "Could not update the password.";
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#invite-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const button = document.querySelector("#invite-submit");
+        button.disabled = true;
+        try {
+          const email = document.querySelector("#invite-email").value.trim();
+          const role = document.querySelector("#invite-role").value;
+          await adminRequest({ action: "invite", email, role });
+          event.target.reset();
+          showToast(`Invitation sent to ${email}.`);
+          await loadAdminUsers();
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Could not invite this account.", true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#users-body").addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-save-role]");
+        if (!button) return;
+        const userId = button.dataset.saveRole;
+        const role = document.querySelector(`[data-role-for="${CSS.escape(userId)}"]`)?.value;
+        if (!userId || !["admin", "teacher"].includes(role)) {
+          showToast("Choose a valid account role.", true);
+          return;
+        }
+        button.disabled = true;
+        try {
+          await adminRequest({ action: "set-role", userId, role });
+          showToast("Account role updated.");
+          await loadAdminUsers();
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Could not update the account role.", true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+      document.querySelector("#refresh-users").addEventListener("click", loadAdminUsers);
+
+      function populateSelect(select, values, placeholder) {
+        const current = select.value;
+        select.replaceChildren(new Option(placeholder, ""));
+        values.forEach((value) => select.add(new Option(value, value)));
+        select.value = values.includes(current) ? current : "";
+      }
+
+      function refreshFilters() {
+        populateSelect(elements.classFilter, uniqueValues("className"), "All classes");
+        populateSelect(elements.subjectFilter, uniqueValues("subject"), "All subjects");
+        populateSelect(elements.assessmentFilter, uniqueValues("assessment"), "All assessments");
+        document.querySelector("#nav-count").textContent = String(state.results.length);
+      }
+
+      function visibleResults() {
+        const query = elements.search.value.trim().toLocaleLowerCase();
+        return state.results.filter((row) => {
+          const matchesFilters = (!elements.classFilter.value || row.className === elements.classFilter.value)
+            && (!elements.subjectFilter.value || row.subject === elements.subjectFilter.value)
+            && (!elements.assessmentFilter.value || row.assessment === elements.assessmentFilter.value);
+          const matchesQuery = !query || [row.student, row.className, row.subject, row.assessment].some((value) => value.toLocaleLowerCase().includes(query));
+          return matchesFilters && matchesQuery;
+        });
+      }
+
+      function updateMetrics(rows) {
+        const students = new Set(rows.map((row) => JSON.stringify([row.className, row.student]))).size;
+        const totalScore = rows.reduce((sum, row) => sum + row.score, 0);
+        const totalMaxScore = rows.reduce((sum, row) => sum + row.maxScore, 0);
+        const average = totalMaxScore ? totalScore / totalMaxScore * 100 : 0;
+        const attainment = rows.length
+          ? rows.filter((row) => ["EE", "ME"].includes(cbeLevel(percentage(row)).code)).length / rows.length * 100
+          : 0;
+        const subjects = new Map();
+        rows.forEach((row) => {
+          const current = subjects.get(row.subject) || { totalScore: 0, totalMaxScore: 0, count: 0 };
+          current.totalScore += row.score;
+          current.totalMaxScore += row.maxScore;
+          current.count += 1;
+          subjects.set(row.subject, current);
+        });
+        const topSubject = [...subjects.entries()].sort((a, b) => b[1].totalScore / b[1].totalMaxScore - a[1].totalScore / a[1].totalMaxScore)[0];
+        document.querySelector("#metric-students").textContent = String(students);
+        document.querySelector("#metric-total").textContent = rows.length ? `${formatMark(totalScore)} / ${formatMark(totalMaxScore)}` : "—";
+        document.querySelector("#metric-average").textContent = rows.length ? `${average.toFixed(1)}%` : "—";
+        document.querySelector("#metric-attainment").textContent = rows.length ? `${attainment.toFixed(0)}%` : "—";
+        document.querySelector("#metric-top-subject").textContent = topSubject ? topSubject[0] : "—";
+        document.querySelector("#top-subject-caption").textContent = topSubject ? `${(topSubject[1].totalScore / topSubject[1].totalMaxScore * 100).toFixed(1)}% class average` : "By average score";
+        document.querySelector("#average-caption").textContent = `Weighted across ${rows.length} ${rows.length === 1 ? "result" : "results"}`;
+      }
+
+      function renderChart(rows) {
+        const svg = document.querySelector("#subject-chart");
+        const mode = elements.chartMode.value;
+        const name = { subject: "subject", class: "className", assessment: "assessment" }[mode];
+        const label = { subject: "subject", class: "class", assessment: "assessment" }[mode];
+        document.querySelector("#chart-title").textContent = `${label[0].toUpperCase()}${label.slice(1)} performance`;
+        document.querySelector("#chart-description").textContent = `Average score by ${label}, shown as a percentage.`;
+        const aggregate = new Map();
+        rows.forEach((row) => {
+          const entry = aggregate.get(row[name]) || { totalScore: 0, totalMaxScore: 0 };
+          entry.totalScore += row.score;
+          entry.totalMaxScore += row.maxScore;
+          aggregate.set(row[name], entry);
+        });
+        const entries = [...aggregate.entries()]
+          .map(([label, item]) => [label, item.totalScore / item.totalMaxScore * 100])
+          .sort((a, b) => b[1] - a[1]);
+        const width = Math.max(svg.clientWidth || 500, 300);
+        const height = 190;
+        const left = 34;
+        const right = 9;
+        const top = 7;
+        const bottom = 40;
+        const plotHeight = height - top - bottom;
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        svg.innerHTML = "";
+        svg.setAttribute("aria-label", entries.length
+          ? `Average score by ${mode}: ${entries.map(([label, value]) => `${label}, ${value.toFixed(1)} percent`).join("; ")}`
+          : "No results to chart");
+        if (!entries.length) {
+          const emptyMessage = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          emptyMessage.setAttribute("x", String(width / 2));
+          emptyMessage.setAttribute("y", String(height / 2));
+          emptyMessage.setAttribute("text-anchor", "middle");
+          emptyMessage.setAttribute("fill", "#788397");
+          emptyMessage.setAttribute("font-size", "11");
+          emptyMessage.textContent = "No results match these filters.";
+          svg.append(emptyMessage);
+          return;
+        }
+        const activeSvg = svg;
+        const activeWidth = width;
+        const activePlotWidth = activeWidth - left - right;
+        const groupWidth = activePlotWidth / entries.length;
+        const barWidth = Math.min(42, groupWidth * .5);
+        const create = (tag, attrs, text) => {
+          const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+          Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
+          if (text !== undefined) element.textContent = text;
+          activeSvg.append(element);
+          return element;
+        };
+        [0, 25, 50, 75, 100].forEach((tick) => {
+          const y = top + plotHeight * (1 - tick / 100);
+          create("line", { x1: left, y1: y, x2: activeWidth - right, y2: y, stroke: "#edf0f5", "stroke-width": 1 });
+          create("text", { x: left - 8, y: y + 3, "text-anchor": "end", fill: "#98a2b1", "font-size": 9 }, `${tick}%`);
+        });
+        entries.forEach(([label, value], index) => {
+          const x = left + index * groupWidth + (groupWidth - barWidth) / 2;
+          const barHeight = plotHeight * value / 100;
+          create("rect", { x, y: top + plotHeight - barHeight, width: barWidth, height: barHeight, rx: 5, fill: index === 0 ? "#4169e1" : "#91a8f4" });
+          create("text", { x: x + barWidth / 2, y: top + plotHeight - barHeight - 7, "text-anchor": "middle", fill: "#4b5870", "font-size": 9, "font-weight": 650 }, `${value.toFixed(0)}%`);
+          const shortLabel = label.length > 12 ? `${label.slice(0, 11)}…` : label;
+          create("text", { x: x + barWidth / 2, y: height - 14, "text-anchor": "middle", fill: "#8792a3", "font-size": 9 }, shortLabel);
+        });
+      }
+
+      function renderDistribution(rows) {
+        const list = document.querySelector("#distribution-list");
+        list.innerHTML = "";
+        cbeBands.forEach((band) => {
+          const count = rows.filter((row) => cbeLevel(percentage(row)).code === band.code).length;
+          const share = rows.length ? count / rows.length * 100 : 0;
+          const item = document.createElement("div");
+          item.innerHTML = `<div class="band-label"><span><strong>${band.code}</strong> · ${band.descriptor} <span style="color:#a1aaba">(${band.range})</span></span><strong>${count} <span style="color:#98a2b1;font-weight:500">· ${share.toFixed(0)}%</span></strong></div><div class="progress" role="progressbar" aria-label="${band.code} — ${band.descriptor}" aria-valuenow="${count}" aria-valuemin="0" aria-valuemax="${rows.length}"><span class="${band.className}" style="width:${share}%"></span></div>`;
+          list.append(item);
+        });
+        document.querySelector("#distribution-note").textContent = rows.length
+          ? `Based on ${rows.length} ${rows.length === 1 ? "result" : "results"}. These percentage bands are a reporting aid, not a national CBE conversion; confirm cutoffs with your school’s assessment rubric.`
+          : "No results match these filters.";
+      }
+
+      function gradeFor(score) {
+        return cbeLevel(score);
+      }
+
+      function learnerSummaries(rows) {
+        const learners = new Map();
+        rows.forEach((row) => {
+          const key = JSON.stringify([row.className, row.student]);
+          const learner = learners.get(key) || {
+            student: row.student,
+            className: row.className,
+            assessmentCount: 0,
+            totalScore: 0,
+            totalMaxScore: 0
+          };
+          learner.assessmentCount += 1;
+          learner.totalScore += row.score;
+          learner.totalMaxScore += row.maxScore;
+          learners.set(key, learner);
+        });
+        return [...learners.values()]
+          .map((learner) => ({
+            ...learner,
+            average: learner.totalMaxScore ? learner.totalScore / learner.totalMaxScore * 100 : 0
+          }))
+          .sort((a, b) => a.className.localeCompare(b.className) || a.student.localeCompare(b.student));
+      }
+
+      function renderLearnerSummary(rows) {
+        const learners = learnerSummaries(rows);
+        const body = document.querySelector("#learner-summary-body");
+        body.innerHTML = "";
+        if (!learners.length) {
+          body.innerHTML = '<tr><td class="empty-row" colspan="6">No learners match these filters.</td></tr>';
+        } else {
+          learners.forEach((learner) => {
+            const level = gradeFor(learner.average);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td><div class="student-cell"><span class="student-avatar" aria-hidden="true">${escapeHtml(learner.student.split(/\s+/).map((part) => part.match(/[\p{L}\p{N}]/u)?.[0]).filter(Boolean).slice(0, 2).join("").toUpperCase())}</span>${escapeHtml(learner.student)}</div></td>
+              <td>${escapeHtml(learner.className)}</td>
+              <td>${learner.assessmentCount}</td>
+              <td>${formatMark(learner.totalScore)} / ${formatMark(learner.totalMaxScore)}</td>
+              <td>${learner.average.toFixed(1)}%</td>
+              <td><span class="grade-pill ${level.gradeClass}" title="${level.descriptor}">${level.code}</span> ${level.descriptor}</td>`;
+            body.append(tr);
+          });
+        }
+        document.querySelector("#learner-summary-description").textContent = "Average is total marks earned ÷ total possible marks. Percentage bands are a reporting aid; confirm them with your school’s rubric.";
+        document.querySelector("#learner-summary-count").textContent = `${learners.length} ${learners.length === 1 ? "learner" : "learners"} in this view`;
+      }
+
+      function renderTable(rows) {
+        const totalPages = Math.max(1, Math.ceil(rows.length / state.pageSize));
+        state.page = Math.min(state.page, totalPages);
+        const start = (state.page - 1) * state.pageSize;
+        const pageRows = rows.slice(start, start + state.pageSize);
+        elements.body.innerHTML = "";
+        if (!pageRows.length) {
+          elements.body.innerHTML = '<tr><td class="empty-row" colspan="8">No results found. Try adjusting your filters or import a results CSV.</td></tr>';
+        } else {
+          pageRows.forEach((row) => {
+            const score = percentage(row);
+            const level = gradeFor(score);
+            const initials = row.student.split(/\s+/)
+              .map((part) => part.match(/[\p{L}\p{N}]/u)?.[0])
+              .filter(Boolean)
+              .slice(0, 2)
+              .join("")
+              .toUpperCase();
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td><div class="student-cell"><span class="student-avatar" aria-hidden="true">${escapeHtml(initials)}</span>${escapeHtml(row.student)}</div></td>
+              <td>${escapeHtml(row.className)}</td>
+              <td>${escapeHtml(row.subject)}</td>
+              <td>${escapeHtml(row.assessment)}</td>
+              <td><div class="score-cell"><span>${row.score} / ${row.maxScore}</span><span class="score-track" aria-hidden="true"><span class="${score < 70 ? "low" : ""}" style="width:${Math.min(score, 100)}%"></span></span></div></td>
+              <td><span class="grade-pill ${level.gradeClass}" title="${level.descriptor}">${level.code}</span></td>
+              <td><span class="status ${level.code.toLowerCase()}">${level.descriptor}</span></td>
+              <td>${escapeHtml(formatDate(row.date))}</td>`;
+            elements.body.append(tr);
+          });
+        }
+        const from = rows.length ? start + 1 : 0;
+        const to = Math.min(start + state.pageSize, rows.length);
+        document.querySelector("#pagination-label").textContent = `Showing ${from}–${to} of ${rows.length} results`;
+        document.querySelector("#page-label").textContent = `${state.page} / ${totalPages}`;
+        document.querySelector("#previous-page").disabled = state.page <= 1;
+        document.querySelector("#next-page").disabled = state.page >= totalPages;
+        document.querySelector("#table-description").textContent = `${rows.length} individual ${rows.length === 1 ? "score" : "scores"} for the selected filters.`;
+      }
+
+      function render() {
+        const rows = visibleResults();
+        updateMetrics(rows);
+        renderChart(rows);
+        renderDistribution(rows);
+        renderLearnerSummary(rows);
+        renderTable(rows);
+      }
+
+      function csvCell(value) {
+        const text = String(value ?? "");
+        return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+      }
+
+      function downloadCsv(filename, columns, rows) {
+        const contents = [
+          columns.map((column) => csvCell(column.label)).join(","),
+          ...rows.map((row) => columns.map((column) => csvCell(column.value(row))).join(","))
+        ].join("\r\n");
+        const blob = new Blob(["\uFEFF", contents], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportCsv() {
+        const rows = visibleResults();
+        if (!rows.length) {
+          showToast("There are no visible results to export.", true);
+          return;
+        }
+        const columns = [
+          { label: "Student", value: (row) => row.student },
+          { label: "Class", value: (row) => row.className },
+          { label: "Subject", value: (row) => row.subject },
+          { label: "Assessment", value: (row) => row.assessment },
+          { label: "Score", value: (row) => row.score },
+          { label: "MaxScore", value: (row) => row.maxScore },
+          { label: "AveragePercent", value: (row) => percentage(row).toFixed(1) },
+          { label: "CBELevel", value: (row) => cbeLevel(percentage(row)).code },
+          { label: "Achievement", value: (row) => cbeLevel(percentage(row)).descriptor },
+          { label: "Date", value: (row) => row.date }
+        ];
+        downloadCsv("results-analysis.csv", columns, rows);
+        showToast(`Exported ${rows.length} ${rows.length === 1 ? "result" : "results"} to CSV.`);
+      }
+
+      function exportSummaryCsv() {
+        const learners = learnerSummaries(visibleResults());
+        if (!learners.length) {
+          showToast("There are no visible learner summaries to export.", true);
+          return;
+        }
+        const columns = [
+          { label: "Student", value: (learner) => learner.student },
+          { label: "Class", value: (learner) => learner.className },
+          { label: "Assessments", value: (learner) => learner.assessmentCount },
+          { label: "TotalMarks", value: (learner) => learner.totalScore },
+          { label: "PossibleMarks", value: (learner) => learner.totalMaxScore },
+          { label: "AveragePercent", value: (learner) => learner.average.toFixed(1) },
+          { label: "CBELevel", value: (learner) => cbeLevel(learner.average).code },
+          { label: "Achievement", value: (learner) => cbeLevel(learner.average).descriptor }
+        ];
+        downloadCsv("learner-results-summary.csv", columns, learners);
+        showToast(`Exported summaries for ${learners.length} ${learners.length === 1 ? "learner" : "learners"}.`);
+      }
+
+      function parseCsv(text) {
+        const records = [];
+        let row = [];
+        let cell = "";
+        let quoted = false;
+        for (let index = 0; index < text.length; index += 1) {
+          const character = text[index];
+          if (quoted) {
+            if (character === '"' && text[index + 1] === '"') { cell += '"'; index += 1; }
+            else if (character === '"') quoted = false;
+            else cell += character;
+          } else if (character === '"') quoted = true;
+          else if (character === ",") { row.push(cell.trim()); cell = ""; }
+          else if (character === "\n" || character === "\r") {
+            if (character === "\r" && text[index + 1] === "\n") index += 1;
+            row.push(cell.trim());
+            if (row.some((value) => value !== "")) records.push(row);
+            row = [];
+            cell = "";
+          } else cell += character;
+        }
+        if (quoted) throw new Error("The CSV contains an unclosed quoted field.");
+        row.push(cell.trim());
+        if (row.some((value) => value !== "")) records.push(row);
+        if (records.length < 2) throw new Error("The CSV needs a header row and at least one result.");
+        const normalizeHeader = (value) => value.toLocaleLowerCase().replace(/[^a-z0-9]/g, "");
+        const headers = records[0].map(normalizeHeader);
+        const locate = (...names) => headers.findIndex((header) => names.includes(header));
+        const indexes = {
+          student: locate("student", "studentname", "learner", "learnername", "name"),
+          className: locate("class", "classname", "group"),
+          subject: locate("subject", "course"),
+          assessment: locate("assessment", "exam", "test", "assessmentname"),
+          score: locate("score", "mark", "result", "points"),
+          maxScore: locate("maxscore", "maximumscore", "totalmarks", "outof", "maxmarks"),
+          date: locate("date", "assessmentdate", "examdate")
+        };
+        const required = ["student", "subject", "score"];
+        const missing = required.filter((key) => indexes[key] < 0);
+        if (missing.length) {
+          const headerNames = { student: "Student", subject: "Subject", score: "Score" };
+          throw new Error(`Missing required column${missing.length > 1 ? "s" : ""}: ${missing.map((key) => headerNames[key]).join(", ")}.`);
+        }
+        const imported = records.slice(1).map((values, index) => {
+          const get = (key, fallback = "") => indexes[key] < 0 ? fallback : (values[indexes[key]] ?? "");
+          const score = Number(get("score"));
+          const maxScore = indexes.maxScore < 0 || get("maxScore") === "" ? 100 : Number(get("maxScore"));
+          const line = index + 2;
+          if (!get("student").trim()) throw new Error(`Row ${line}: Student cannot be blank.`);
+          if (!get("subject").trim()) throw new Error(`Row ${line}: Subject cannot be blank.`);
+          if (!Number.isFinite(score) || !Number.isFinite(maxScore) || maxScore <= 0 || score < 0 || score > maxScore) {
+            throw new Error(`Row ${line}: Score must be a number between 0 and a positive MaxScore.`);
+          }
+          return {
+            student: get("student").trim(),
+            className: get("className").trim() || "Unassigned",
+            subject: get("subject").trim(),
+            assessment: get("assessment").trim() || "Assessment",
+            score,
+            maxScore,
+            date: get("date").trim()
+          };
+        });
+        if (!imported.length) throw new Error("The CSV does not contain any results.");
+        return imported;
+      }
+
+      document.querySelector("#import-button").addEventListener("click", () => elements.fileInput.click());
+      document.querySelector("#help-import").addEventListener("click", () => {
+        showToast("Choose a CSV with Student, Subject and Score columns. Class, Assessment, MaxScore and Date are optional.");
+      });
+      elements.fileInput.addEventListener("change", async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        try {
+          const imported = parseCsv(await file.text());
+          state.results = imported;
+          state.page = 1;
+          refreshFilters();
+          elements.search.value = "";
+          render();
+          showToast(`Imported ${imported.length} ${imported.length === 1 ? "result" : "results"} from ${file.name}.`);
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "The CSV could not be imported.", true);
+        } finally {
+          event.target.value = "";
+        }
+      });
+      [elements.classFilter, elements.subjectFilter, elements.assessmentFilter].forEach((select) => {
+        select.addEventListener("change", () => { state.page = 1; render(); });
+      });
+      elements.search.addEventListener("input", () => { state.page = 1; render(); });
+      elements.chartMode.addEventListener("change", render);
+      document.querySelector("#previous-page").addEventListener("click", () => {
+        state.page = Math.max(1, state.page - 1);
+        render();
+      });
+      document.querySelector("#next-page").addEventListener("click", () => {
+        state.page += 1;
+        render();
+      });
+      document.querySelector("#clear-filters").addEventListener("click", () => {
+        elements.classFilter.value = "";
+        elements.subjectFilter.value = "";
+        elements.assessmentFilter.value = "";
+        elements.search.value = "";
+        state.page = 1;
+        render();
+      });
+      ["#export-button", "#table-export", "#top-export"].forEach((selector) => {
+        document.querySelector(selector).addEventListener("click", exportCsv);
+      });
+      document.querySelector("#summary-export").addEventListener("click", exportSummaryCsv);
+      window.addEventListener("resize", () => {
+        window.requestAnimationFrame(() => renderChart(visibleResults()));
+      });
+
+      refreshFilters();
+      render();
+      initializeAuthentication();
+    })();
+  </script>
+</body>
+</html>

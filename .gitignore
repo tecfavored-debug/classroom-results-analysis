@@ -1,0 +1,9 @@
+node_modules/
+.agents/
+.vercel/
+supabase/
+SUPABASE_SETUP.md
+.vercelignore
+package.json
+package-lock.json
+skills-lock.json
