@@ -511,6 +511,7 @@
       .class-analysis-controls { grid-template-columns: 1fr; }
       .class-analysis-stream-control { grid-column: auto; grid-template-columns: 1fr; }
     }
+    @page school-analysis-landscape { size: landscape; margin: 10mm; }
     @media print {
       body.printing-report > *:not(#print-report) { display: none !important; }
       body.printing-report #print-report {
@@ -525,6 +526,14 @@
       #print-report table { width: 100%; margin-top: 12px; border-collapse: collapse; white-space: normal; }
       #print-report th, #print-report td { height: auto; padding: 7px; border: 1px solid #bbb; color: #111; font-size: 10px; }
       #print-report th { background: #eee; text-align: left; }
+      #print-report.class-analysis-print { page: school-analysis-landscape; }
+      #print-report.class-analysis-print table { table-layout: auto; }
+      #print-report.class-analysis-print th, #print-report.class-analysis-print td { padding: 5px 4px; font-size: 8px; }
+      #print-report.class-analysis-print .learner-subject-results { width: 100%; table-layout: fixed; }
+      #print-report.class-analysis-print .learner-subject-results th,
+      #print-report.class-analysis-print .learner-subject-results td { overflow-wrap: anywhere; text-align: center; }
+      #print-report.class-analysis-print .learner-subject-results th:nth-child(2),
+      #print-report.class-analysis-print .learner-subject-results td:nth-child(2) { text-align: left; }
       #print-report.report-card-print { font-size: 11px; }
       .report-card { padding: 18px; border: 2px solid #243b64; }
       .report-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 2px solid #243b64; }
@@ -2376,9 +2385,29 @@
           .sort((a, b) => (b.average ?? -1) - (a.average ?? -1) || a.subject.localeCompare(b.subject));
       }
 
+      function learnerSubjectMarks(rows) {
+        const subjects = new Set();
+        const byLearner = new Map();
+        rows.forEach((row) => {
+          subjects.add(row.subject);
+          if (!row.studentId) return;
+          const learnerMarks = byLearner.get(row.studentId) || new Map();
+          const subjectMarks = learnerMarks.get(row.subject) || { score: 0, maxScore: 0 };
+          subjectMarks.score += row.score;
+          subjectMarks.maxScore += row.maxScore;
+          learnerMarks.set(row.subject, subjectMarks);
+          byLearner.set(row.studentId, learnerMarks);
+        });
+        return {
+          subjects: [...subjects].sort((a, b) => a.localeCompare(b)),
+          byLearner
+        };
+      }
+
       function reportCsvRows(group) {
         const stats = group.stats;
         const learners = learnerSummaries(group.results);
+        const { subjects, byLearner } = learnerSubjectMarks(group.results);
         const summaryRow = {
           recordType: "Group summary",
           sectionName: group.sectionName,
@@ -2392,29 +2421,38 @@
           totalMaxScore: stats.totalMaxScore,
           average: stats.average === null ? "" : stats.average.toFixed(1),
           bandCounts: stats.bandCounts,
-          cbeLevel: ""
+          cbeLevel: "",
+          subjectMarks: Object.fromEntries(subjects.map((subject) => [subject, ""]))
         };
-        const learnerRows = learners.map((learner) => ({
-          recordType: "Learner",
-          sectionName: learner.sectionName,
-          className: learner.className,
-          streamName: learner.streamName,
-          student: learner.student,
-          enrolled: "",
-          studentsAssessed: "",
-          assessments: learner.assessmentCount,
-          totalScore: learner.totalScore,
-          totalMaxScore: learner.totalMaxScore,
-          average: learner.average.toFixed(1),
-          bandCounts: { EE: "", ME: "", AE: "", BE: "" },
-          cbeLevel: cbeLevel(learner.average).code
-        }));
+        const learnerRows = learners.map((learner) => {
+          const marksBySubject = byLearner.get(learner.studentId);
+          return {
+            recordType: "Learner",
+            sectionName: learner.sectionName,
+            className: learner.className,
+            streamName: learner.streamName,
+            student: learner.student,
+            enrolled: "",
+            studentsAssessed: "",
+            assessments: learner.assessmentCount,
+            totalScore: learner.totalScore,
+            totalMaxScore: learner.totalMaxScore,
+            average: learner.average.toFixed(1),
+            bandCounts: { EE: "", ME: "", AE: "", BE: "" },
+            cbeLevel: cbeLevel(learner.average).code,
+            subjectMarks: Object.fromEntries(subjects.map((subject) => {
+              const marks = marksBySubject?.get(subject);
+              return [subject, marks ? `${formatMark(marks.score)} / ${formatMark(marks.maxScore)}` : ""];
+            }))
+          };
+        });
         return [summaryRow, ...learnerRows];
       }
 
       function downloadGroupReport(group) {
         const label = group.kind === "stream" ? `${group.className}-${group.streamName}` : group.className;
         const filename = `${group.kind}-${label}`.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "results-report";
+        const subjects = learnerSubjectMarks(group.results).subjects;
         const columns = [
           { label: "RecordType", value: (row) => row.recordType },
           { label: "SchoolSection", value: (row) => row.sectionName },
@@ -2424,6 +2462,10 @@
           { label: "Enrolled", value: (row) => row.enrolled },
           { label: "StudentsAssessed", value: (row) => row.studentsAssessed },
           { label: "Assessments", value: (row) => row.assessments },
+          ...subjects.map((subject) => ({
+            label: subject,
+            value: (row) => row.subjectMarks?.[subject] || ""
+          })),
           { label: "TotalMarks", value: (row) => row.totalScore },
           { label: "PossibleMarks", value: (row) => row.totalMaxScore },
           { label: "AveragePercent", value: (row) => row.average },
@@ -2440,6 +2482,7 @@
       function printGroupReport(group) {
         const stats = group.stats;
         const learners = learnerSummaries(group.results).sort((a, b) => b.average - a.average || a.student.localeCompare(b.student));
+        const { subjects: learnerSubjects, byLearner } = learnerSubjectMarks(group.results);
         const learnerById = new Map(learners.map((learner) => [learner.studentId, learner]));
         const classRecord = state.classes.find((classroom) => classroom.name === group.className
           && sectionName(classroom.section_id) === group.sectionName);
@@ -2496,17 +2539,22 @@
               ? 1 + learners.filter((learner) => learner.average > summary.average).length
               : "—";
             const level = summary ? cbeLevel(summary.average) : null;
+            const subjectCells = learnerSubjects.map((subject) => {
+              const marks = byLearner.get(student.id)?.get(subject);
+              return `<td>${marks ? `${formatMark(marks.score)} / ${formatMark(marks.maxScore)}` : "—"}</td>`;
+            }).join("");
             return `<tr>
               <td>${rank}</td>
               <td>${escapeHtml(student.full_name)}</td>
               <td>${escapeHtml(streamName || "—")}</td>
+              ${subjectCells}
               <td>${summary?.assessmentCount ?? "—"}</td>
               <td>${summary ? `${formatMark(summary.totalScore)} / ${formatMark(summary.totalMaxScore)}` : "—"}</td>
               <td>${summary ? `${summary.average.toFixed(1)}%` : "—"}</td>
               <td>${level ? escapeHtml(level.code) : "—"}</td>
             </tr>`;
           }).join("")
-          : '<tr><td colspan="7">No learners are enrolled in this class.</td></tr>';
+          : `<tr><td colspan="${7 + learnerSubjects.length}">No learners are enrolled in this class.</td></tr>`;
         const streamNames = includedStreams.map((stream) => stream.name);
         const classLabel = group.kind === "stream"
           ? `${group.className} ${group.streamName} stream`
@@ -2515,8 +2563,16 @@
         const headingAssessment = assessmentTitle === "All assessments"
           ? assessmentTitle
           : `${assessmentTitle}${/assessments?$/i.test(assessmentTitle) ? "" : " assessments"}`;
+        const subjectColumnWidth = learnerSubjects.length ? (39 / learnerSubjects.length).toFixed(2) : 0;
+        const learnerTableColumns = `
+          <colgroup>
+            <col style="width:5%"><col style="width:16%"><col style="width:7%">
+            ${learnerSubjects.map(() => `<col style="width:${subjectColumnWidth}%">`).join("")}
+            <col style="width:7%"><col style="width:9%"><col style="width:7%"><col style="width:10%">
+          </colgroup>`;
         const printReport = document.querySelector("#print-report");
         printReport.classList.remove("report-card-print");
+        printReport.classList.add("class-analysis-print");
         printReport.innerHTML = `
           <h1>KIRIENE DAY SCHOOL</h1>
           <p>${escapeHtml(headingAssessment)} · ${escapeHtml(group.sectionName)} · ${escapeHtml(classLabel)} · Printed ${escapeHtml(new Date().toLocaleDateString())}</p>
@@ -2527,8 +2583,10 @@
             <tbody>${subjectTableRows}</tbody>
           </table>
           <h2>LEARNERS POSITION</h2>
-          <table>
-            <thead><tr><th>Position</th><th>Name</th><th>Stream</th><th>Assessments</th><th>Total marks</th><th>Mean</th><th>CBE level</th></tr></thead>
+          <p>Each subject column shows marks earned / possible for the report’s assessment selection. A dash means no examination result is recorded for that learner and subject.</p>
+          <table class="learner-subject-results">
+            ${learnerTableColumns}
+            <thead><tr><th>Position</th><th>Name</th><th>Stream</th>${learnerSubjects.map((subject) => `<th>${escapeHtml(subject)}</th>`).join("")}<th>Assessments</th><th>Total marks</th><th>Mean</th><th>CBE level</th></tr></thead>
             <tbody>${learnerTableRows}</tbody>
           </table>
           <p>CBE level labels use the current app bands: EE 85%+, ME 70–84%, AE 50–69%, and BE below 50%.</p>`;
@@ -2543,6 +2601,7 @@
           document.body.classList.remove("printing-report");
           printReport.hidden = true;
           printReport.classList.remove("report-card-print");
+          printReport.classList.remove("class-analysis-print");
           printReport.replaceChildren();
         }, { once: true });
         window.print();
