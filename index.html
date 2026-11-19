@@ -1248,6 +1248,7 @@
       })[character]);
       const percentage = (row) => row.score / row.maxScore * 100;
       const formatMark = (mark) => Number(mark.toFixed(2)).toLocaleString("en");
+      const formatPercent = (score, maxScore) => `${Number((score / maxScore * 100).toFixed(1))}%`;
       const cbeLevel = (score) => cbeBands.find((band) => score >= band.minimum);
       const formatDate = (date) => {
         if (!date) return "—";
@@ -2442,7 +2443,7 @@
             cbeLevel: cbeLevel(learner.average).code,
             subjectMarks: Object.fromEntries(subjects.map((subject) => {
               const marks = marksBySubject?.get(subject);
-              return [subject, marks ? `${formatMark(marks.score)} / ${formatMark(marks.maxScore)}` : ""];
+              return [subject, marks ? formatPercent(marks.score, marks.maxScore) : ""];
             }))
           };
         });
@@ -2462,10 +2463,6 @@
           { label: "Enrolled", value: (row) => row.enrolled },
           { label: "StudentsAssessed", value: (row) => row.studentsAssessed },
           { label: "Assessments", value: (row) => row.assessments },
-          ...subjects.map((subject) => ({
-            label: subject,
-            value: (row) => row.subjectMarks?.[subject] || ""
-          })),
           { label: "TotalMarks", value: (row) => row.totalScore },
           { label: "PossibleMarks", value: (row) => row.totalMaxScore },
           { label: "AveragePercent", value: (row) => row.average },
@@ -2473,7 +2470,11 @@
           { label: "ME", value: (row) => row.bandCounts.ME },
           { label: "AE", value: (row) => row.bandCounts.AE },
           { label: "BE", value: (row) => row.bandCounts.BE },
-          { label: "LearnerCBELevel", value: (row) => row.cbeLevel }
+          { label: "LearnerCBELevel", value: (row) => row.cbeLevel },
+          ...subjects.map((subject) => ({
+            label: subject,
+            value: (row) => row.subjectMarks?.[subject] || ""
+          }))
         ];
         downloadCsv(`${filename}-analysis.csv`, columns, reportCsvRows(group));
         showToast(`Downloaded the ${group.kind} analysis report.`);
@@ -2541,7 +2542,7 @@
             const level = summary ? cbeLevel(summary.average) : null;
             const subjectCells = learnerSubjects.map((subject) => {
               const marks = byLearner.get(student.id)?.get(subject);
-              return `<td>${marks ? `${formatMark(marks.score)} / ${formatMark(marks.maxScore)}` : "—"}</td>`;
+              return `<td>${marks ? formatPercent(marks.score, marks.maxScore) : "—"}</td>`;
             }).join("");
             return `<tr>
               <td>${rank}</td>
@@ -2577,17 +2578,17 @@
           <h1>KIRIENE DAY SCHOOL</h1>
           <p>${escapeHtml(headingAssessment)} · ${escapeHtml(group.sectionName)} · ${escapeHtml(classLabel)} · Printed ${escapeHtml(new Date().toLocaleDateString())}</p>
           ${summaryHtml}
-          <h2>SUBJECTS</h2>
-          <table>
-            <thead><tr><th>Subject</th><th>Mean</th><th>Level</th><th>Position</th></tr></thead>
-            <tbody>${subjectTableRows}</tbody>
-          </table>
           <h2>LEARNERS POSITION</h2>
-          <p>Each subject column shows marks earned / possible for the report’s assessment selection. A dash means no examination result is recorded for that learner and subject.</p>
+          <p>Each subject column shows the learner’s percentage of possible marks for the selected assessment(s). A dash means no examination result is recorded for that learner and subject.</p>
           <table class="learner-subject-results">
             ${learnerTableColumns}
             <thead><tr><th>Position</th><th>Name</th><th>Stream</th>${learnerSubjects.map((subject) => `<th>${escapeHtml(subject)}</th>`).join("")}<th>Assessments</th><th>Total marks</th><th>Mean</th><th>CBE level</th></tr></thead>
             <tbody>${learnerTableRows}</tbody>
+          </table>
+          <h2>SUBJECTS</h2>
+          <table>
+            <thead><tr><th>Subject</th><th>Mean</th><th>Level</th><th>Position</th></tr></thead>
+            <tbody>${subjectTableRows}</tbody>
           </table>
           <p>CBE level labels use the current app bands: EE 85%+, ME 70–84%, AE 50–69%, and BE below 50%.</p>`;
         displayPrintReport();
