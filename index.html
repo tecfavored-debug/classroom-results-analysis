@@ -405,6 +405,11 @@
     .score-entry-student strong { color: #344055; font-size: 10px; }
     .score-entry-student span { color: var(--muted); font-size: 9px; }
     .score-entry-empty { padding: 18px !important; color: var(--muted) !important; text-align: center; }
+    .class-analysis-controls { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); align-items: end; gap: 10px; padding: 0 19px 14px; }
+    .class-analysis-controls .score-entry-field select { width: 100%; }
+    .class-analysis-controls .button { min-height: 35px; justify-content: center; padding: 0 10px; font-size: 10px; }
+    .class-analysis-stream-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 7px; }
+    .class-roster-table th:first-child, .class-roster-table td:first-child { width: 60px; }
     .report-actions { display: flex; gap: 5px; }
     .report-actions .button { min-height: 28px; padding: 0 8px; font-size: 9px; }
     .report-card-button { min-height: 28px; padding: 0 8px; font-size: 9px; }
@@ -483,6 +488,8 @@
       .filter-control { flex: 1; min-width: 110px; }
       .filter-caption { width: 100%; }
       .score-entry-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .class-analysis-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .class-analysis-stream-control { grid-column: 1 / -1; }
     }
     @media (max-width: 480px) {
       .breadcrumb { font-size: 10px; }
@@ -501,6 +508,8 @@
       .auth-card { padding: 24px; }
       .admin-form { grid-template-columns: 1fr; }
       .score-entry-controls { grid-template-columns: 1fr; }
+      .class-analysis-controls { grid-template-columns: 1fr; }
+      .class-analysis-stream-control { grid-column: auto; grid-template-columns: 1fr; }
     }
     @media print {
       body.printing-report > *:not(#print-report) { display: none !important; }
@@ -940,6 +949,44 @@
           </footer>
         </section>
 
+        <section class="panel table-panel" id="class-roster-analysis" aria-labelledby="class-roster-analysis-title" style="margin-top: 18px">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="class-roster-analysis-title">Class list &amp; results analysis</h2>
+              <p class="panel-description">View all learners in a class, print the overall analysis, or choose a stream to view its analysis. Use Edge’s print dialog to save a report as PDF.</p>
+            </div>
+          </header>
+          <div class="class-analysis-controls">
+            <label class="score-entry-field" for="class-analysis-class">Class
+              <select id="class-analysis-class"><option value="">Choose a class</option></select>
+            </label>
+            <label class="score-entry-field" for="class-analysis-assessment">Assessment
+              <select id="class-analysis-assessment"><option value="">All assessments</option></select>
+            </label>
+            <button type="button" class="button primary" id="class-overall-analysis" disabled>Overall class results analysis</button>
+            <div class="class-analysis-stream-control">
+              <label class="score-entry-field" for="class-analysis-stream">Stream
+                <select id="class-analysis-stream"><option value="">Choose a stream</option></select>
+              </label>
+              <button type="button" class="button" id="class-stream-analysis" disabled>View / print stream analysis</button>
+            </div>
+          </div>
+          <p class="score-entry-note" id="class-roster-message" role="status" aria-live="polite">Choose a class to see its learners.</p>
+          <div class="table-wrap">
+            <table class="class-roster-table">
+              <thead>
+                <tr>
+                  <th scope="col">No.</th>
+                  <th scope="col">Learner</th>
+                  <th scope="col">Admission number</th>
+                  <th scope="col">Stream</th>
+                </tr>
+              </thead>
+              <tbody id="class-roster-body"><tr><td class="empty-row" colspan="4">Choose a class to see the learner list.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="panel table-panel" id="school-settings" aria-labelledby="settings-title" style="margin-top: 18px">
           <header class="table-heading">
             <div>
@@ -1162,7 +1209,14 @@
         scoreEntryHead: document.querySelector("#score-entry-head"),
         scoreEntryBody: document.querySelector("#score-entry-body"),
         scoreEntryMessage: document.querySelector("#score-entry-message"),
-        saveScores: document.querySelector("#save-scores")
+        saveScores: document.querySelector("#save-scores"),
+        classAnalysisClass: document.querySelector("#class-analysis-class"),
+        classAnalysisAssessment: document.querySelector("#class-analysis-assessment"),
+        classAnalysisStream: document.querySelector("#class-analysis-stream"),
+        classRosterBody: document.querySelector("#class-roster-body"),
+        classRosterMessage: document.querySelector("#class-roster-message"),
+        overallClassAnalysis: document.querySelector("#class-overall-analysis"),
+        streamAnalysis: document.querySelector("#class-stream-analysis")
       };
       const authElements = {
         view: document.querySelector("#auth-view"),
@@ -1675,6 +1729,7 @@
           }).join("")
           : '<li class="empty-setting">No examinations yet.</li>';
         refreshScoreEntrySelectors();
+        refreshClassAnalysisSelectors();
       }
 
       function localDateString(date = new Date()) {
@@ -1803,6 +1858,71 @@
 
         elements.scoreEntryMessage.textContent = `${students.length} ${students.length === 1 ? "learner" : "learners"} · ${subjects.length} ${subjects.length === 1 ? "subject" : "subjects"} · Blank cells are skipped when saving.`;
         elements.saveScores.disabled = false;
+      }
+
+      function refreshClassAnalysisSelectors() {
+        const classOptions = [...state.classes]
+          .sort((a, b) => sectionName(a.section_id).localeCompare(sectionName(b.section_id)) || a.name.localeCompare(b.name))
+          .map((classroom) => ({
+            value: classroom.id,
+            label: `${sectionName(classroom.section_id)} · ${classroom.name}`
+          }));
+        populateSelect(elements.classAnalysisClass, classOptions, "Choose a class");
+        if (!elements.classAnalysisClass.value && state.classes.some((item) => item.id === elements.classFilter.value)) {
+          elements.classAnalysisClass.value = elements.classFilter.value;
+        } else if (!elements.classAnalysisClass.value && classOptions.length === 1) {
+          elements.classAnalysisClass.value = classOptions[0].value;
+        }
+
+        const assessmentNames = [...new Set([
+          ...state.assessments.map((item) => item.name),
+          ...state.results.map((row) => row.assessment)
+        ])].sort((a, b) => a.localeCompare(b));
+        populateSelect(elements.classAnalysisAssessment, assessmentNames, "All assessments");
+
+        const classId = elements.classAnalysisClass.value;
+        const streams = state.streams
+          .filter((stream) => stream.class_id === classId)
+          .sort((a, b) => a.name.localeCompare(b.name));
+        populateSelect(elements.classAnalysisStream, streams.map((stream) => ({
+          value: stream.id,
+          label: stream.name
+        })), "Choose a stream");
+        renderClassRoster();
+      }
+
+      function renderClassRoster() {
+        const classId = elements.classAnalysisClass.value;
+        const classroom = state.classes.find((item) => item.id === classId);
+        const students = classroom
+          ? state.students.filter((student) => student.class_id === classroom.id)
+            .sort((a, b) => a.full_name.localeCompare(b.full_name))
+          : [];
+        elements.classRosterBody.innerHTML = "";
+        elements.overallClassAnalysis.disabled = !classroom;
+        elements.streamAnalysis.disabled = !classroom || !elements.classAnalysisStream.value;
+        if (!classroom) {
+          elements.classRosterBody.innerHTML = '<tr><td class="empty-row" colspan="4">Choose a class to see the learner list.</td></tr>';
+          elements.classRosterMessage.textContent = "Choose a class to see its learners.";
+          return;
+        }
+        if (!students.length) {
+          elements.classRosterBody.innerHTML = '<tr><td class="empty-row" colspan="4">No learners are enrolled in this class.</td></tr>';
+          elements.classRosterMessage.textContent = `${sectionName(classroom.section_id)} · ${classroom.name} has no enrolled learners.`;
+          return;
+        }
+        students.forEach((student, index) => {
+          const streamName = state.streams.find((item) => item.id === student.stream_id)?.name || "—";
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${escapeHtml(student.full_name)}</td>
+            <td>${escapeHtml(student.admission_number || "—")}</td>
+            <td>${escapeHtml(streamName)}</td>`;
+          elements.classRosterBody.append(row);
+        });
+        const assessment = elements.classAnalysisAssessment.value || "all assessments";
+        elements.classRosterMessage.textContent = `${students.length} ${students.length === 1 ? "learner" : "learners"} in ${sectionName(classroom.section_id)} · ${classroom.name} · ${assessment}.`;
       }
 
       async function saveScoreEntry() {
@@ -2214,6 +2334,48 @@
         return reportGroups(kind).find((group) => group.id === id);
       }
 
+      function selectedClassAnalysisGroup(kind) {
+        const classroom = state.classes.find((item) => item.id === elements.classAnalysisClass.value);
+        const stream = kind === "stream"
+          ? state.streams.find((item) => item.id === elements.classAnalysisStream.value && item.class_id === classroom?.id)
+          : null;
+        if (!classroom || (kind === "stream" && !stream)) return null;
+        const assessmentName = elements.classAnalysisAssessment.value;
+        const results = state.results.filter((row) => row.classId === classroom.id
+          && (!assessmentName || row.assessment === assessmentName)
+          && (!stream || row.streamId === stream.id));
+        return {
+          id: stream?.id || classroom.id,
+          kind,
+          className: classroom.name,
+          sectionName: sectionName(classroom.section_id),
+          streamName: stream?.name || "",
+          enrolled: state.students.filter((student) => student.class_id === classroom.id
+            && (!stream || student.stream_id === stream.id)).length,
+          results,
+          stats: resultStatistics(results),
+          assessmentName: assessmentName || "All assessments"
+        };
+      }
+
+      function subjectAnalysisRows(rows) {
+        const totals = new Map();
+        rows.forEach((row) => {
+          const subject = totals.get(row.subject) || { score: 0, maxScore: 0 };
+          subject.score += row.score;
+          subject.maxScore += row.maxScore;
+          totals.set(row.subject, subject);
+        });
+        return [...totals.entries()]
+          .map(([subject, total]) => ({
+            subject,
+            score: total.score,
+            maxScore: total.maxScore,
+            average: total.maxScore ? total.score / total.maxScore * 100 : null
+          }))
+          .sort((a, b) => (b.average ?? -1) - (a.average ?? -1) || a.subject.localeCompare(b.subject));
+      }
+
       function reportCsvRows(group) {
         const stats = group.stats;
         const learners = learnerSummaries(group.results);
@@ -2277,41 +2439,99 @@
 
       function printGroupReport(group) {
         const stats = group.stats;
-        const learners = learnerSummaries(group.results);
-        const title = group.kind === "stream"
-          ? `${group.sectionName} — ${group.className} — ${group.streamName}`
-          : `${group.sectionName} — ${group.className}`;
-        const groupSummary = group.kind === "stream" ? "Stream report" : "Class report";
-        const learnerRows = learners.length
-          ? learners.map((learner) => `<tr>
-              <td>${escapeHtml(learner.student)}</td>
-              ${group.kind === "class" ? `<td>${escapeHtml(learner.streamName || "—")}</td>` : ""}
-              <td>${learner.assessmentCount}</td>
-              <td>${formatMark(learner.totalScore)} / ${formatMark(learner.totalMaxScore)}</td>
-              <td>${learner.average.toFixed(1)}%</td>
-              <td>${escapeHtml(cbeLevel(learner.average).code)} — ${escapeHtml(cbeLevel(learner.average).descriptor)}</td>
-            </tr>`).join("")
-          : `<tr><td colspan="${group.kind === "class" ? 6 : 5}">No results have been recorded for this ${group.kind}.</td></tr>`;
+        const learners = learnerSummaries(group.results).sort((a, b) => b.average - a.average || a.student.localeCompare(b.student));
+        const learnerById = new Map(learners.map((learner) => [learner.studentId, learner]));
+        const classRecord = state.classes.find((classroom) => classroom.name === group.className
+          && sectionName(classroom.section_id) === group.sectionName);
+        const roster = state.students
+          .filter((student) => student.class_id === classRecord?.id
+            && (group.kind !== "stream" || student.stream_id === group.id))
+          .map((student) => ({
+            student,
+            streamName: state.streams.find((stream) => stream.id === student.stream_id)?.name || "",
+            summary: learnerById.get(student.id)
+          }))
+          .sort((a, b) => {
+            if (a.summary && b.summary && a.summary.average !== b.summary.average) return b.summary.average - a.summary.average;
+            if (a.summary) return -1;
+            if (b.summary) return 1;
+            return a.student.full_name.localeCompare(b.student.full_name);
+          });
+        const subjectRows = subjectAnalysisRows(group.results);
+        const bestSubject = subjectRows[0];
+        const includedStreams = group.kind === "stream"
+          ? state.streams.filter((stream) => stream.id === group.id)
+          : state.streams.filter((stream) => stream.class_id === classRecord?.id);
+        const streamMeans = includedStreams.map((stream) => {
+          const streamStats = resultStatistics(group.results.filter((row) => row.streamId === stream.id));
+          return `<tr><th>${escapeHtml(`${group.className} ${stream.name} mean`)}</th><td>${streamStats.average === null ? "—" : `${streamStats.average.toFixed(1)}%`}</td></tr>`;
+        }).join("");
+        const overallLevel = stats.average === null ? null : cbeLevel(stats.average);
+        const summaryHtml = `
+          <table class="class-analysis-summary">
+            <tbody>
+              <tr>
+                <th>${group.kind === "stream" ? "Stream mean" : "Class mean"}</th><td>${stats.average === null ? "—" : `${stats.average.toFixed(1)}%`}</td>
+                <th>Overall</th><td>${overallLevel ? `${escapeHtml(overallLevel.code)} · ${escapeHtml(overallLevel.descriptor)}` : "—"}</td>
+                <th>Best subject ${group.kind === "stream" ? "in stream" : "across streams"}</th>
+                <td>${bestSubject ? `${escapeHtml(bestSubject.subject)} · ${bestSubject.average.toFixed(1)}%` : "—"}</td>
+              </tr>
+              ${streamMeans}
+            </tbody>
+          </table>`;
+        const subjectTableRows = subjectRows.length
+          ? subjectRows.map((subject, index) => {
+            const level = subject.average === null ? null : cbeLevel(subject.average);
+            return `<tr>
+              <td>${escapeHtml(subject.subject)}</td>
+              <td>${subject.average === null ? "—" : `${subject.average.toFixed(1)}%`}</td>
+              <td>${level ? `${escapeHtml(level.code)} · ${escapeHtml(level.descriptor)}` : "—"}</td>
+              <td>${index + 1}</td>
+            </tr>`;
+          }).join("")
+          : '<tr><td colspan="4">No subject scores have been recorded.</td></tr>';
+        const learnerTableRows = roster.length
+          ? roster.map(({ student, streamName, summary }) => {
+            const rank = summary
+              ? 1 + learners.filter((learner) => learner.average > summary.average).length
+              : "—";
+            const level = summary ? cbeLevel(summary.average) : null;
+            return `<tr>
+              <td>${rank}</td>
+              <td>${escapeHtml(student.full_name)}</td>
+              <td>${escapeHtml(streamName || "—")}</td>
+              <td>${summary?.assessmentCount ?? "—"}</td>
+              <td>${summary ? `${formatMark(summary.totalScore)} / ${formatMark(summary.totalMaxScore)}` : "—"}</td>
+              <td>${summary ? `${summary.average.toFixed(1)}%` : "—"}</td>
+              <td>${level ? escapeHtml(level.code) : "—"}</td>
+            </tr>`;
+          }).join("")
+          : '<tr><td colspan="7">No learners are enrolled in this class.</td></tr>';
+        const streamNames = includedStreams.map((stream) => stream.name);
+        const classLabel = group.kind === "stream"
+          ? `${group.className} ${group.streamName} stream`
+          : `${group.className}${streamNames.length ? ` · ${streamNames.join(" and ")} streams` : ""}`;
+        const assessmentTitle = group.assessmentName || "All assessments";
+        const headingAssessment = assessmentTitle === "All assessments"
+          ? assessmentTitle
+          : `${assessmentTitle}${/assessments?$/i.test(assessmentTitle) ? "" : " assessments"}`;
         const printReport = document.querySelector("#print-report");
         printReport.classList.remove("report-card-print");
         printReport.innerHTML = `
-          <h1>Results analysis</h1>
-          <p>${escapeHtml(groupSummary)}: ${escapeHtml(title)} · Printed ${escapeHtml(new Date().toLocaleDateString())}</p>
+          <h1>KIRIENE DAY SCHOOL</h1>
+          <p>${escapeHtml(headingAssessment)} · ${escapeHtml(group.sectionName)} · ${escapeHtml(classLabel)} · Printed ${escapeHtml(new Date().toLocaleDateString())}</p>
+          ${summaryHtml}
+          <h2>SUBJECTS</h2>
           <table>
-            <thead><tr><th>Learners enrolled</th><th>Students assessed</th><th>Results</th><th>Total marks</th><th>Average</th><th>EE</th><th>ME</th><th>AE</th><th>BE</th></tr></thead>
-            <tbody><tr>
-              <td>${group.enrolled}</td><td>${stats.studentsAssessed}</td><td>${stats.resultCount}</td>
-              <td>${stats.resultCount ? `${formatMark(stats.totalScore)} / ${formatMark(stats.totalMaxScore)}` : "—"}</td>
-              <td>${stats.average === null ? "—" : `${stats.average.toFixed(1)}%`}</td>
-              <td>${stats.bandCounts.EE}</td><td>${stats.bandCounts.ME}</td><td>${stats.bandCounts.AE}</td><td>${stats.bandCounts.BE}</td>
-            </tr></tbody>
+            <thead><tr><th>Subject</th><th>Mean</th><th>Level</th><th>Position</th></tr></thead>
+            <tbody>${subjectTableRows}</tbody>
           </table>
-          <h2>Learner results summary</h2>
+          <h2>LEARNERS POSITION</h2>
           <table>
-            <thead><tr><th>Learner</th>${group.kind === "class" ? "<th>Stream</th>" : ""}<th>Assessments</th><th>Total marks</th><th>Average</th><th>CBE level</th></tr></thead>
-            <tbody>${learnerRows}</tbody>
+            <thead><tr><th>Position</th><th>Name</th><th>Stream</th><th>Assessments</th><th>Total marks</th><th>Mean</th><th>CBE level</th></tr></thead>
+            <tbody>${learnerTableRows}</tbody>
           </table>
-          <p>CBE percentage bands are a reporting aid; confirm cutoffs with your school’s assessment rubric.</p>`;
+          <p>CBE level labels use the current app bands: EE 85%+, ME 70–84%, AE 50–69%, and BE below 50%.</p>`;
         displayPrintReport();
       }
 
@@ -2779,6 +2999,28 @@
           elements.scoreEntryMessage.textContent = message;
           showToast(message, true);
         }
+      });
+      elements.classAnalysisClass.addEventListener("change", () => {
+        elements.classAnalysisStream.value = "";
+        refreshClassAnalysisSelectors();
+      });
+      elements.classAnalysisAssessment.addEventListener("change", renderClassRoster);
+      elements.classAnalysisStream.addEventListener("change", renderClassRoster);
+      elements.overallClassAnalysis.addEventListener("click", () => {
+        const group = selectedClassAnalysisGroup("class");
+        if (!group) {
+          showToast("Choose a class before generating its analysis.", true);
+          return;
+        }
+        printGroupReport(group);
+      });
+      elements.streamAnalysis.addEventListener("click", () => {
+        const group = selectedClassAnalysisGroup("stream");
+        if (!group) {
+          showToast("Choose a class and stream before generating the stream analysis.", true);
+          return;
+        }
+        printGroupReport(group);
       });
       elements.classFilter.addEventListener("change", () => {
         refreshFilters();
