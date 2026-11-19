@@ -7,3 +7,10 @@ SUPABASE_SETUP.md
 package.json
 package-lock.json
 skills-lock.json
+!supabase/
+supabase/*
+!supabase/migrations/
+supabase/migrations/*
+!supabase/migrations/20261119120000_add_subjects_and_assessments.sql
+!supabase/migrations/20261119121500_make_assessments_school_wide.sql
+!supabase/migrations/20261119124000_add_school_sections.sql

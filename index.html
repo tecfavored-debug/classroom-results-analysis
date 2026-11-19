@@ -253,6 +253,7 @@
 
     .filter-bar {
       display: flex;
+      flex-wrap: wrap;
       min-height: 60px;
       align-items: center;
       gap: 11px;
@@ -383,8 +384,30 @@
     .settings-list { display: grid; gap: 6px; max-height: 210px; overflow: auto; margin: 0; padding: 0 14px 14px; list-style: none; }
     .settings-list li { padding: 8px 9px; border: 1px solid #edf0f5; border-radius: 6px; background: white; color: #536076; font-size: 10px; }
     .settings-list .empty-setting { color: var(--muted); font-style: italic; }
+    .assessment-entry-list { max-height: 250px; }
+    .score-entry-controls { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)); gap: 10px; padding: 0 19px 12px; }
+    .score-entry-field { display: grid; gap: 5px; color: #647087; font-size: 10px; font-weight: 650; }
+    .score-entry-field select, .score-entry-field input { width: 100%; height: 35px; min-width: 0; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; outline: none; background: white; color: var(--ink); font-size: 11px; }
+    .score-entry-field select:focus, .score-entry-field input:focus, .score-entry-table input:focus { border-color: #9eb4ff; box-shadow: 0 0 0 3px rgb(65 105 225 / 9%); }
+    .score-entry-note { margin: 0; padding: 0 19px 12px; color: var(--muted); font-size: 10px; }
+    .score-entry-table { min-width: max-content; }
+    .score-entry-table th { position: sticky; top: 0; z-index: 1; height: auto; min-width: 150px; padding: 10px 12px; background: #fafbfd; vertical-align: top; white-space: normal; }
+    .score-entry-table th:first-child { left: 0; z-index: 3; min-width: 200px; }
+    .score-entry-table tbody th { position: sticky; top: auto; left: 0; z-index: 1; min-width: 200px; padding: 7px 12px; background: white; text-align: left; letter-spacing: normal; text-transform: none; }
+    .score-entry-table td { min-width: 150px; padding: 7px 12px; }
+    .score-entry-table td:first-child { position: sticky; left: 0; z-index: 1; min-width: 200px; background: white; }
+    .score-entry-subject { display: grid; gap: 7px; }
+    .score-entry-subject-name { color: #536076; font-size: 10px; font-weight: 700; }
+    .score-entry-max { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 9px; font-weight: 500; text-transform: none; letter-spacing: 0; }
+    .score-entry-max input, .score-entry-table input[data-score-cell] { width: 76px; height: 31px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; outline: none; background: white; color: var(--ink); font-size: 11px; }
+    .score-entry-table input[data-score-cell] { width: 84px; }
+    .score-entry-student { display: grid; gap: 3px; white-space: normal; }
+    .score-entry-student strong { color: #344055; font-size: 10px; }
+    .score-entry-student span { color: var(--muted); font-size: 9px; }
+    .score-entry-empty { padding: 18px !important; color: var(--muted) !important; text-align: center; }
     .report-actions { display: flex; gap: 5px; }
     .report-actions .button { min-height: 28px; padding: 0 8px; font-size: 9px; }
+    .report-card-button { min-height: 28px; padding: 0 8px; font-size: 9px; }
     #print-report { display: none; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
@@ -459,6 +482,7 @@
       .search-wrap { width: 100%; margin-left: 0; }
       .filter-control { flex: 1; min-width: 110px; }
       .filter-caption { width: 100%; }
+      .score-entry-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 480px) {
       .breadcrumb { font-size: 10px; }
@@ -476,6 +500,7 @@
       .table-tools .button { flex: 1; }
       .auth-card { padding: 24px; }
       .admin-form { grid-template-columns: 1fr; }
+      .score-entry-controls { grid-template-columns: 1fr; }
     }
     @media print {
       body.printing-report > *:not(#print-report) { display: none !important; }
@@ -491,6 +516,31 @@
       #print-report table { width: 100%; margin-top: 12px; border-collapse: collapse; white-space: normal; }
       #print-report th, #print-report td { height: auto; padding: 7px; border: 1px solid #bbb; color: #111; font-size: 10px; }
       #print-report th { background: #eee; text-align: left; }
+      #print-report.report-card-print { font-size: 11px; }
+      .report-card { padding: 18px; border: 2px solid #243b64; }
+      .report-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 2px solid #243b64; }
+      .report-card-header h1 { margin: 0 0 4px !important; color: #243b64; font-size: 22px !important; letter-spacing: .5px; text-transform: uppercase; }
+      .report-card-header p { margin: 0 !important; color: #555; font-size: 10px; }
+      .report-card-term { padding: 7px 10px; border: 1px solid #9caac0; font-size: 11px; font-weight: 700; white-space: nowrap; }
+      .report-card-details, .report-card-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 14px; margin-top: 12px; }
+      .report-card-field { min-height: 25px; padding: 4px 0; border-bottom: 1px solid #bbb; }
+      .report-card-field strong { margin-right: 5px; color: #333; font-size: 9px; text-transform: uppercase; }
+      .report-card-section-title { margin: 15px 0 0 !important; color: #243b64; font-size: 12px; text-transform: uppercase; }
+      .report-card-summary { grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 8px 10px; background: #f2f5fa; }
+      #print-report .report-card-table { margin-top: 8px; table-layout: fixed; }
+      #print-report .report-card-table th, #print-report .report-card-table td { padding: 5px; font-size: 9px; }
+      #print-report .report-card-table th:nth-child(1) { width: 13%; }
+      #print-report .report-card-table th:nth-child(2) { width: 12%; }
+      #print-report .report-card-table th:nth-child(3),
+      #print-report .report-card-table th:nth-child(4),
+      #print-report .report-card-table th:nth-child(5) { width: 8%; }
+      #print-report .report-card-table th:nth-child(6) { width: 29%; }
+      #print-report .report-card-table th:nth-child(7) { width: 7%; }
+      .report-card-note { margin: 8px 0 0 !important; font-size: 9px; }
+      .report-card-comments { margin-top: 12px; }
+      .report-card-comments p { margin: 8px 0 0 !important; padding-bottom: 14px; border-bottom: 1px solid #bbb; }
+      .report-card-signatures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 14px; }
+      .report-card-signatures div { padding-top: 15px; border-bottom: 1px solid #777; font-size: 9px; }
     }
   </style>
 </head>
@@ -671,6 +721,8 @@
 
         <section class="filter-bar" aria-label="Filter results">
           <span class="filter-caption">FILTER BY</span>
+          <label class="visually-hidden" for="section-filter">School section</label>
+          <select class="filter-control" id="section-filter"><option value="">All school sections</option></select>
           <label class="visually-hidden" for="class-filter">Class</label>
           <select class="filter-control" id="class-filter"><option value="">All classes</option></select>
           <label class="visually-hidden" for="stream-filter">Stream</label>
@@ -683,6 +735,39 @@
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
             <input id="search-input" type="search" placeholder="Search students..." autocomplete="off">
           </label>
+        </section>
+
+        <section class="panel table-panel score-entry-panel" id="score-entry" aria-labelledby="score-entry-title" style="margin-top: 18px">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="score-entry-title">Enter scores by subject</h2>
+              <p class="panel-description">Choose a class and examination, then enter marks in the subject columns. Leave a cell blank to skip it.</p>
+            </div>
+            <div class="table-tools">
+              <button type="button" class="button primary" id="save-scores" disabled>Save scores</button>
+            </div>
+          </header>
+          <div class="score-entry-controls">
+            <label class="score-entry-field" for="entry-section">School section
+              <select id="entry-section"><option value="">Choose a section</option></select>
+            </label>
+            <label class="score-entry-field" for="entry-class">Class
+              <select id="entry-class"><option value="">Choose a class</option></select>
+            </label>
+            <label class="score-entry-field" for="entry-assessment">Examination
+              <select id="entry-assessment"><option value="">Choose an examination</option></select>
+            </label>
+            <label class="score-entry-field" for="entry-date">Examination date
+              <input id="entry-date" type="date">
+            </label>
+          </div>
+          <p class="score-entry-note" id="score-entry-message" role="status" aria-live="polite">Select a section, class, and examination to load the score-entry grid.</p>
+          <div class="table-wrap">
+            <table class="score-entry-table">
+              <thead id="score-entry-head"></thead>
+              <tbody id="score-entry-body"><tr><td class="score-entry-empty">Choose the class and examination to start entering scores.</td></tr></tbody>
+            </table>
+          </div>
         </section>
 
         <section class="metric-grid" aria-label="Class performance summary">
@@ -774,7 +859,7 @@
             <table>
               <thead>
                 <tr>
-                  <th scope="col">Class</th>
+                  <th scope="col">Section / class</th>
                   <th scope="col">Enrolled</th>
                   <th scope="col">Assessed</th>
                   <th scope="col">Results</th>
@@ -803,7 +888,7 @@
             <table>
               <thead>
                 <tr>
-                  <th scope="col">Class</th>
+                  <th scope="col">Section / class</th>
                   <th scope="col">Stream</th>
                   <th scope="col">Enrolled</th>
                   <th scope="col">Assessed</th>
@@ -826,7 +911,7 @@
           <header class="table-heading">
             <div>
               <h2 class="panel-title" id="learner-summary-title">Learner totals &amp; averages</h2>
-              <p class="panel-description" id="learner-summary-description">Totals and CBE achievement level for each learner in the selected view.</p>
+              <p class="panel-description" id="learner-summary-description">Totals reflect the selected filters. Print a card to include all recorded assessments for that learner.</p>
             </div>
             <div class="table-tools">
               <button type="button" class="button" id="summary-export">Download summary CSV</button>
@@ -836,6 +921,7 @@
             <table>
               <thead>
                 <tr>
+                  <th scope="col">Section</th>
                   <th scope="col">Learner</th>
                   <th scope="col">Class</th>
                   <th scope="col">Stream</th>
@@ -843,6 +929,7 @@
                   <th scope="col">Total marks</th>
                   <th scope="col">Average</th>
                   <th scope="col">CBE level</th>
+                  <th scope="col">Report card</th>
                 </tr>
               </thead>
               <tbody id="learner-summary-body"></tbody>
@@ -857,7 +944,7 @@
           <header class="table-heading">
             <div>
               <h2 class="panel-title" id="settings-title">School settings</h2>
-              <p class="panel-description">Add classes, streams and learners. Changes are shared with authorized staff through Supabase.</p>
+              <p class="panel-description">Add classes under a school section, then add streams and learners. Changes are shared with authorized staff.</p>
             </div>
           </header>
           <div class="settings-grid">
@@ -868,6 +955,10 @@
                 <div class="auth-field">
                   <label for="new-class-name">Class name</label>
                   <input id="new-class-name" name="className" maxlength="80" required placeholder="e.g. Grade 7">
+                </div>
+                <div class="auth-field">
+                  <label for="new-class-section">School section</label>
+                  <select id="new-class-section" required><option value="">Choose a section</option></select>
                 </div>
                 <button type="submit" class="button primary">Add class</button>
               </form>
@@ -914,6 +1005,50 @@
                 <button type="submit" class="button primary">Add student</button>
               </form>
               <ul class="settings-list" id="student-list"><li class="empty-setting">No students yet.</li></ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel table-panel" id="assessments" aria-labelledby="assessments-title" style="margin-top: 18px">
+          <header class="table-heading">
+            <div>
+              <h2 class="panel-title" id="assessments-title">Subjects &amp; examinations</h2>
+              <p class="panel-description">Add subjects and examinations. Each examination is available for every subject and shared with authorized staff.</p>
+            </div>
+          </header>
+          <div class="settings-grid">
+            <article class="settings-card">
+              <h3>Subjects</h3>
+              <p>Add a subject to the section where it is taught.</p>
+              <form class="settings-form" id="subject-form">
+                <div class="auth-field">
+                  <label for="new-subject-name">Subject name</label>
+                  <input id="new-subject-name" maxlength="100" required placeholder="e.g. Mathematics">
+                </div>
+                <div class="auth-field">
+                  <label for="new-subject-section">School section</label>
+                  <select id="new-subject-section" required><option value="">Choose a section</option></select>
+                </div>
+                <button type="submit" class="button primary">Add subject</button>
+              </form>
+              <ul class="settings-list assessment-entry-list" id="subject-list"><li class="empty-setting">No subjects yet.</li></ul>
+            </article>
+
+            <article class="settings-card">
+              <h3>Examinations</h3>
+              <p>Add a school-wide examination, then select it when reviewing results for any subject.</p>
+              <form class="settings-form" id="assessment-form">
+                <div class="auth-field">
+                  <label for="new-assessment-name">Examination name</label>
+                  <input id="new-assessment-name" maxlength="120" required placeholder="e.g. Term 1 Midterm">
+                </div>
+                <div class="auth-field">
+                  <label for="new-assessment-date">Examination date <span class="panel-description">(optional)</span></label>
+                  <input id="new-assessment-date" type="date">
+                </div>
+                <button type="submit" class="button primary">Add examination</button>
+              </form>
+              <ul class="settings-list assessment-entry-list" id="assessment-list"><li class="empty-setting">No examinations yet.</li></ul>
             </article>
           </div>
         </section>
@@ -1002,7 +1137,7 @@
         { student: "James Wilson", className: "Year 8B", subject: "Science", assessment: "Lab assessment", score: 51, maxScore: 100, date: "2025-05-16" }
       ];
 
-      const state = { results: [], classes: [], streams: [], students: [], page: 1, pageSize: 8, toastTimer: 0 };
+      const state = { results: [], classes: [], streams: [], students: [], sections: [], subjects: [], assessments: [], page: 1, pageSize: 8, toastTimer: 0 };
       const cbeBands = [
         { code: "EE", descriptor: "Exceeding expectations", range: "85–100%", className: "band-excellent", gradeClass: "ee", minimum: 85 },
         { code: "ME", descriptor: "Meeting expectations", range: "70–84%", className: "band-good", gradeClass: "me", minimum: 70 },
@@ -1010,6 +1145,7 @@
         { code: "BE", descriptor: "Below expectations", range: "Below 50%", className: "band-needs-work", gradeClass: "be", minimum: 0 }
       ];
       const elements = {
+        sectionFilter: document.querySelector("#section-filter"),
         classFilter: document.querySelector("#class-filter"),
         streamFilter: document.querySelector("#stream-filter"),
         subjectFilter: document.querySelector("#subject-filter"),
@@ -1018,7 +1154,15 @@
         chartMode: document.querySelector("#chart-mode"),
         fileInput: document.querySelector("#file-input"),
         body: document.querySelector("#results-body"),
-        toast: document.querySelector("#toast")
+        toast: document.querySelector("#toast"),
+        scoreEntrySection: document.querySelector("#entry-section"),
+        scoreEntryClass: document.querySelector("#entry-class"),
+        scoreEntryAssessment: document.querySelector("#entry-assessment"),
+        scoreEntryDate: document.querySelector("#entry-date"),
+        scoreEntryHead: document.querySelector("#score-entry-head"),
+        scoreEntryBody: document.querySelector("#score-entry-body"),
+        scoreEntryMessage: document.querySelector("#score-entry-message"),
+        saveScores: document.querySelector("#save-scores")
       };
       const authElements = {
         view: document.querySelector("#auth-view"),
@@ -1047,6 +1191,7 @@
         const parsed = new Date(`${date}T00:00:00`);
         return Number.isNaN(parsed.getTime()) ? date : new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric" }).format(parsed);
       };
+      const sectionName = (id) => state.sections.find((section) => section.id === id)?.name || "Unassigned";
       const uniqueValues = (key) => [...new Set(state.results.map((row) => row[key]))].sort((a, b) => a.localeCompare(b));
 
       function showToast(message, isError = false) {
@@ -1076,7 +1221,14 @@
         state.classes = [];
         state.streams = [];
         state.students = [];
+        state.sections = [];
+        state.subjects = [];
+        state.assessments = [];
         state.page = 1;
+        elements.scoreEntrySection.value = "";
+        elements.scoreEntryClass.value = "";
+        elements.scoreEntryAssessment.value = "";
+        elements.scoreEntryDate.value = "";
         elements.classFilter.value = "";
         elements.streamFilter.value = "";
         elements.subjectFilter.value = "";
@@ -1084,6 +1236,7 @@
         elements.search.value = "";
         refreshFilters();
         renderSettings();
+        refreshScoreEntrySelectors();
         render();
       }
 
@@ -1148,25 +1301,36 @@
         state.classes = [];
         state.streams = [];
         state.students = [];
-        const [classes, streams, students, storedResults] = await Promise.all([
-          selectAllRows("school_classes", "id, name", "name"),
+        state.sections = [];
+        state.subjects = [];
+        state.assessments = [];
+        const [sections, classes, streams, students, subjects, assessments, storedResults] = await Promise.all([
+          selectAllRows("school_sections", "id, name, sort_order", "sort_order"),
+          selectAllRows("school_classes", "id, name, section_id", "name"),
           selectAllRows("school_streams", "id, class_id, name", "name"),
           selectAllRows("school_students", "id, full_name, admission_number, class_id, stream_id", "full_name"),
+          selectAllRows("school_subjects", "id, name, section_id", "name"),
+          selectAllRows("school_assessments", "id, name, assessment_date", "name"),
           selectAllRows("school_results", "id, student_id, subject, assessment, score, max_score, assessment_date", "assessment_date")
         ]);
         const classesById = new Map(classes.map((item) => [item.id, item]));
+        const sectionsById = new Map(sections.map((item) => [item.id, item]));
         const streamsById = new Map(streams.map((item) => [item.id, item]));
         const studentsById = new Map(students.map((item) => [item.id, item]));
 
         state.classes = classes;
         state.streams = streams;
         state.students = students;
+        state.sections = sections;
+        state.subjects = subjects;
+        state.assessments = assessments;
         state.results = storedResults.map((item) => {
           const student = studentsById.get(item.student_id);
           if (!student) throw new Error("A result is linked to a missing student. Ask an administrator to check the school data.");
           const classroom = classesById.get(student.class_id);
           const stream = streamsById.get(student.stream_id);
-          if (!classroom || !stream) throw new Error("A student is linked to a missing class or stream. Ask an administrator to check the school data.");
+          const section = classroom && sectionsById.get(classroom.section_id);
+          if (!classroom || !stream || !section) throw new Error("A student is linked to a missing class, school section or stream. Ask an administrator to check the school data.");
           return {
             id: item.id,
             studentId: student.id,
@@ -1174,6 +1338,8 @@
             admissionNumber: student.admission_number || "",
             classId: classroom.id,
             className: classroom.name,
+            sectionId: section.id,
+            sectionName: section.name,
             streamId: stream.id,
             streamName: stream.name,
             subject: item.subject,
@@ -1409,18 +1575,40 @@
       }
 
       function refreshStreamFilter() {
-        const matchingStreams = state.streams.filter((stream) => !elements.classFilter.value || stream.class_id === elements.classFilter.value);
+        const matchingStreams = state.streams.filter((stream) => {
+          const classroom = state.classes.find((item) => item.id === stream.class_id);
+          return (!elements.classFilter.value || stream.class_id === elements.classFilter.value)
+            && (!elements.sectionFilter.value || classroom?.section_id === elements.sectionFilter.value);
+        });
         populateSelect(elements.streamFilter, matchingStreams.map((stream) => ({
           value: stream.id,
-          label: `${state.classes.find((item) => item.id === stream.class_id)?.name || "Class"} — ${stream.name}`
+          label: `${sectionName(state.classes.find((item) => item.id === stream.class_id)?.section_id)} · ${state.classes.find((item) => item.id === stream.class_id)?.name || "Class"} — ${stream.name}`
         })), "All streams");
       }
 
       function refreshFilters() {
-        populateSelect(elements.classFilter, state.classes.map((item) => ({ value: item.id, label: item.name })), "All classes");
+        populateSelect(elements.sectionFilter, state.sections.map((item) => ({ value: item.id, label: item.name })), "All school sections");
+        const selectedSection = elements.sectionFilter.value;
+        const matchingClasses = state.classes.filter((item) => !selectedSection || item.section_id === selectedSection);
+        populateSelect(elements.classFilter, matchingClasses.map((item) => ({
+          value: item.id,
+          label: selectedSection ? item.name : `${sectionName(item.section_id)} · ${item.name}`
+        })), "All classes");
         refreshStreamFilter();
-        populateSelect(elements.subjectFilter, uniqueValues("subject"), "All subjects");
-        populateSelect(elements.assessmentFilter, uniqueValues("assessment"), "All assessments");
+        const selectedClass = state.classes.find((item) => item.id === elements.classFilter.value);
+        const selectedStream = state.streams.find((item) => item.id === elements.streamFilter.value);
+        const streamClass = state.classes.find((item) => item.id === selectedStream?.class_id);
+        const effectiveSection = selectedSection || selectedClass?.section_id || streamClass?.section_id;
+        const catalogSubjects = state.subjects
+          .filter((item) => !effectiveSection || item.section_id === effectiveSection)
+          .map((item) => item.name);
+        const resultSubjects = state.results
+          .filter((row) => !effectiveSection || row.sectionId === effectiveSection)
+          .map((row) => row.subject);
+        const subjects = [...new Set([...catalogSubjects, ...resultSubjects])].sort((a, b) => a.localeCompare(b));
+        const assessments = [...new Set([...state.assessments.map((item) => item.name), ...uniqueValues("assessment")])].sort((a, b) => a.localeCompare(b));
+        populateSelect(elements.subjectFilter, subjects, "All subjects");
+        populateSelect(elements.assessmentFilter, assessments, "All assessments");
         document.querySelector("#nav-count").textContent = String(state.results.length);
       }
 
@@ -1433,8 +1621,15 @@
       }
 
       function renderSettings() {
-        populateSelect(document.querySelector("#new-stream-class"), state.classes.map((item) => ({ value: item.id, label: item.name })), "Choose a class");
-        populateSelect(document.querySelector("#new-student-class"), state.classes.map((item) => ({ value: item.id, label: item.name })), "Choose a class");
+        const sectionOptions = state.sections.map((section) => ({ value: section.id, label: section.name }));
+        populateSelect(document.querySelector("#new-class-section"), sectionOptions, "Choose a section");
+        populateSelect(document.querySelector("#new-subject-section"), sectionOptions, "Choose a section");
+        const classOptions = state.classes.map((item) => ({
+          value: item.id,
+          label: `${sectionName(item.section_id)} · ${item.name}`
+        }));
+        populateSelect(document.querySelector("#new-stream-class"), classOptions, "Choose a class");
+        populateSelect(document.querySelector("#new-student-class"), classOptions, "Choose a class");
         refreshStudentStreams();
 
         const classList = document.querySelector("#class-list");
@@ -1442,15 +1637,15 @@
           ? state.classes.map((classroom) => {
             const streamCount = state.streams.filter((stream) => stream.class_id === classroom.id).length;
             const studentCount = state.students.filter((student) => student.class_id === classroom.id).length;
-            return `<li><strong>${escapeHtml(classroom.name)}</strong> · ${streamCount} ${streamCount === 1 ? "stream" : "streams"} · ${studentCount} ${studentCount === 1 ? "learner" : "learners"}</li>`;
+            return `<li><strong>${escapeHtml(classroom.name)}</strong> · ${escapeHtml(sectionName(classroom.section_id))} · ${streamCount} ${streamCount === 1 ? "stream" : "streams"} · ${studentCount} ${studentCount === 1 ? "learner" : "learners"}</li>`;
           }).join("")
           : '<li class="empty-setting">No classes yet.</li>';
 
         const streamList = document.querySelector("#stream-list");
         streamList.innerHTML = state.streams.length
           ? state.streams.map((stream) => {
-            const className = state.classes.find((item) => item.id === stream.class_id)?.name || "Unknown class";
-            return `<li><strong>${escapeHtml(className)} — ${escapeHtml(stream.name)}</strong> · ${state.students.filter((student) => student.stream_id === stream.id).length} learners</li>`;
+            const classroom = state.classes.find((item) => item.id === stream.class_id);
+            return `<li><strong>${escapeHtml(sectionName(classroom?.section_id))} · ${escapeHtml(classroom?.name || "Unknown class")} — ${escapeHtml(stream.name)}</strong> · ${state.students.filter((student) => student.stream_id === stream.id).length} learners</li>`;
           }).join("")
           : '<li class="empty-setting">No streams yet.</li>';
 
@@ -1458,14 +1653,209 @@
         const visibleStudents = state.students.slice(0, 100);
         studentList.innerHTML = visibleStudents.length
           ? visibleStudents.map((student) => {
-            const className = state.classes.find((item) => item.id === student.class_id)?.name || "Unknown class";
+            const classroom = state.classes.find((item) => item.id === student.class_id);
             const streamName = state.streams.find((item) => item.id === student.stream_id)?.name || "Unknown stream";
             const admission = student.admission_number ? ` · ${escapeHtml(student.admission_number)}` : "";
-            return `<li>${escapeHtml(student.full_name)}${admission}<br><span class="panel-description">${escapeHtml(className)} — ${escapeHtml(streamName)}</span></li>`;
+            return `<li>${escapeHtml(student.full_name)}${admission}<br><span class="panel-description">${escapeHtml(sectionName(classroom?.section_id))} · ${escapeHtml(classroom?.name || "Unknown class")} — ${escapeHtml(streamName)}</span></li>`;
           }).join("")
           : '<li class="empty-setting">No students yet.</li>';
         if (state.students.length > visibleStudents.length) {
           studentList.insertAdjacentHTML("beforeend", `<li class="empty-setting">Showing ${visibleStudents.length} of ${state.students.length} students.</li>`);
+        }
+
+        const subjectList = document.querySelector("#subject-list");
+        subjectList.innerHTML = state.subjects.length
+          ? state.subjects.map((subject) => `<li>${escapeHtml(subject.name)} · ${escapeHtml(sectionName(subject.section_id))}</li>`).join("")
+          : '<li class="empty-setting">No subjects yet.</li>';
+
+        const assessmentList = document.querySelector("#assessment-list");
+        assessmentList.innerHTML = state.assessments.length
+          ? state.assessments.map((assessment) => {
+            return `<li><strong>${escapeHtml(assessment.name)}</strong><br><span class="panel-description">All subjects · ${escapeHtml(formatDate(assessment.assessment_date))}</span></li>`;
+          }).join("")
+          : '<li class="empty-setting">No examinations yet.</li>';
+        refreshScoreEntrySelectors();
+      }
+
+      function localDateString(date = new Date()) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+
+      function defaultScoreEntryDate(assessmentName) {
+        const assessment = state.assessments.find((item) => item.name === assessmentName);
+        if (assessment?.assessment_date) return assessment.assessment_date;
+        const existingDates = state.results
+          .filter((row) => row.assessment === assessmentName && row.date)
+          .map((row) => row.date)
+          .sort((a, b) => b.localeCompare(a));
+        return existingDates[0] || localDateString();
+      }
+
+      function refreshScoreEntrySelectors() {
+        const previousSection = elements.scoreEntrySection.value;
+        populateSelect(elements.scoreEntrySection, state.sections.map((item) => ({
+          value: item.id,
+          label: item.name
+        })), "Choose a section");
+        if (!elements.scoreEntrySection.value && state.sections.some((item) => item.id === elements.sectionFilter.value)) {
+          elements.scoreEntrySection.value = elements.sectionFilter.value;
+        } else if (!previousSection && state.sections.length === 1) {
+          elements.scoreEntrySection.value = state.sections[0].id;
+        }
+
+        const selectedSection = elements.scoreEntrySection.value;
+        const availableClasses = state.classes.filter((item) => item.section_id === selectedSection);
+        populateSelect(elements.scoreEntryClass, availableClasses.map((item) => ({
+          value: item.id,
+          label: item.name
+        })), "Choose a class");
+        if (!elements.scoreEntryClass.value && availableClasses.some((item) => item.id === elements.classFilter.value)) {
+          elements.scoreEntryClass.value = elements.classFilter.value;
+        }
+
+        const assessmentNames = [...new Set([
+          ...state.assessments.map((item) => item.name),
+          ...state.results.map((row) => row.assessment)
+        ])].sort((a, b) => a.localeCompare(b));
+        const previousAssessment = elements.scoreEntryAssessment.value;
+        populateSelect(elements.scoreEntryAssessment, assessmentNames, "Choose an examination");
+        if (!elements.scoreEntryAssessment.value && assessmentNames.includes(elements.assessmentFilter.value)) {
+          elements.scoreEntryAssessment.value = elements.assessmentFilter.value;
+        } else if (!previousAssessment && assessmentNames.length === 1) {
+          elements.scoreEntryAssessment.value = assessmentNames[0];
+        }
+        if (!elements.scoreEntryDate.value && elements.scoreEntryAssessment.value) {
+          elements.scoreEntryDate.value = defaultScoreEntryDate(elements.scoreEntryAssessment.value);
+        }
+        renderScoreEntryGrid();
+      }
+
+      function scoreEntrySubjects() {
+        return state.subjects
+          .filter((item) => item.section_id === elements.scoreEntrySection.value)
+          .sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      function renderScoreEntryGrid() {
+        const sectionId = elements.scoreEntrySection.value;
+        const classId = elements.scoreEntryClass.value;
+        const assessmentName = elements.scoreEntryAssessment.value;
+        const assessmentDate = elements.scoreEntryDate.value;
+        const classroom = state.classes.find((item) => item.id === classId && item.section_id === sectionId);
+        const subjects = scoreEntrySubjects();
+        const students = state.students
+          .filter((item) => item.class_id === classId)
+          .sort((a, b) => a.full_name.localeCompare(b.full_name));
+        elements.scoreEntryHead.replaceChildren();
+        elements.scoreEntryBody.replaceChildren();
+        elements.saveScores.disabled = true;
+
+        if (!sectionId || !classroom || !assessmentName || !assessmentDate) {
+          elements.scoreEntryBody.innerHTML = '<tr><td class="score-entry-empty">Choose the section, class, examination, and date to load the score-entry grid.</td></tr>';
+          elements.scoreEntryMessage.textContent = "Select a section, class, and examination to load the score-entry grid.";
+          return;
+        }
+        if (!subjects.length) {
+          elements.scoreEntryBody.innerHTML = '<tr><td class="score-entry-empty">No subjects are set up for this school section. Add subjects in School settings first.</td></tr>';
+          elements.scoreEntryMessage.textContent = `No subjects are available for ${sectionName(sectionId)}.`;
+          return;
+        }
+        if (!students.length) {
+          elements.scoreEntryBody.innerHTML = '<tr><td class="score-entry-empty">No learners are in this class yet. Add learners in School settings first.</td></tr>';
+          elements.scoreEntryMessage.textContent = `No learners are enrolled in ${classroom.name}.`;
+          return;
+        }
+
+        const header = document.createElement("tr");
+        header.innerHTML = `<th scope="col">Student</th>${subjects.map((subject) => {
+          const matchingResults = state.results.filter((row) => row.classId === classId
+            && row.subject === subject.name
+            && row.assessment === assessmentName
+            && row.date === assessmentDate);
+          const maxCounts = new Map();
+          matchingResults.forEach((row) => maxCounts.set(row.maxScore, (maxCounts.get(row.maxScore) || 0) + 1));
+          const defaultMax = [...maxCounts.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0]?.[0] || 100;
+          return `<th scope="col"><div class="score-entry-subject">
+            <span class="score-entry-subject-name">${escapeHtml(subject.name)}</span>
+            <label class="score-entry-max" for="entry-max-${escapeHtml(subject.id)}">Out of
+              <input id="entry-max-${escapeHtml(subject.id)}" data-subject-max="${escapeHtml(subject.id)}" type="number" min="0.01" step="any" value="${escapeHtml(defaultMax)}" aria-label="${escapeHtml(subject.name)} maximum score">
+            </label>
+          </div></th>`;
+        }).join("")}`;
+        elements.scoreEntryHead.append(header);
+
+        const existingResults = new Map();
+        state.results
+          .filter((row) => row.classId === classId && row.assessment === assessmentName && row.date === assessmentDate)
+          .forEach((row) => existingResults.set(`${row.studentId}\u0000${row.subject}`, row));
+        students.forEach((student) => {
+          const streamName = state.streams.find((item) => item.id === student.stream_id)?.name || "";
+          const row = document.createElement("tr");
+          row.innerHTML = `<th scope="row"><div class="score-entry-student">
+            <strong>${escapeHtml(student.full_name)}</strong>
+            <span>${escapeHtml([student.admission_number, streamName].filter(Boolean).join(" · ") || classroom.name)}</span>
+          </div></th>${subjects.map((subject) => {
+            const existing = existingResults.get(`${student.id}\u0000${subject.name}`);
+            return `<td><input data-score-cell data-student-id="${escapeHtml(student.id)}" data-subject-id="${escapeHtml(subject.id)}" type="number" min="0" step="any" ${existing ? `value="${escapeHtml(existing.score)}"` : ""} aria-label="${escapeHtml(student.full_name)} ${escapeHtml(subject.name)} score"></td>`;
+          }).join("")}`;
+          elements.scoreEntryBody.append(row);
+        });
+
+        elements.scoreEntryMessage.textContent = `${students.length} ${students.length === 1 ? "learner" : "learners"} · ${subjects.length} ${subjects.length === 1 ? "subject" : "subjects"} · Blank cells are skipped when saving.`;
+        elements.saveScores.disabled = false;
+      }
+
+      async function saveScoreEntry() {
+        const classId = elements.scoreEntryClass.value;
+        const sectionId = elements.scoreEntrySection.value;
+        const assessmentName = elements.scoreEntryAssessment.value;
+        const assessmentDate = elements.scoreEntryDate.value;
+        const classroom = state.classes.find((item) => item.id === classId && item.section_id === sectionId);
+        if (!classroom || !assessmentName || !assessmentDate) throw new Error("Choose a section, class, examination, and date before saving.");
+
+        const maxScores = new Map([...document.querySelectorAll("[data-subject-max]")].map((input) => [
+          input.dataset.subjectMax,
+          Number(input.value)
+        ]));
+        const subjectsById = new Map(scoreEntrySubjects().map((subject) => [subject.id, subject]));
+        const entries = [];
+        document.querySelectorAll("[data-score-cell]").forEach((input) => {
+          const scoreText = input.value.trim();
+          if (!scoreText) return;
+          const score = Number(scoreText);
+          const maxScore = maxScores.get(input.dataset.subjectId);
+          if (!Number.isFinite(score) || !Number.isFinite(maxScore) || maxScore <= 0 || score < 0 || score > maxScore) {
+            const student = state.students.find((item) => item.id === input.dataset.studentId);
+            const subject = subjectsById.get(input.dataset.subjectId);
+            throw new Error(`${student?.full_name || "A learner"}: ${subject?.name || "A subject"} score must be between 0 and a positive maximum score.`);
+          }
+          const subject = subjectsById.get(input.dataset.subjectId);
+          if (!subject) throw new Error("A selected subject is no longer available. Refresh the school data and try again.");
+          entries.push({
+            student_id: input.dataset.studentId,
+            subject: subject.name,
+            assessment: assessmentName,
+            score,
+            max_score: maxScore,
+            assessment_date: assessmentDate
+          });
+        });
+        if (!entries.length) throw new Error("Enter at least one score. Blank cells are skipped.");
+        if (!supabaseClient || !signedInUser) throw new Error("Sign in before saving scores.");
+
+        const button = elements.saveScores;
+        button.disabled = true;
+        elements.scoreEntryMessage.textContent = `Saving ${entries.length} ${entries.length === 1 ? "score" : "scores"}…`;
+        try {
+          const { error } = await supabaseClient
+            .from("school_results")
+            .upsert(entries, { onConflict: "student_id,subject,assessment,assessment_date" });
+          if (error) throw new Error(`Could not save scores: ${error.message}`);
+          await loadWorkspaceData();
+          elements.scoreEntryMessage.textContent = `Saved ${entries.length} ${entries.length === 1 ? "score" : "scores"} for ${classroom.name} · ${assessmentName}.`;
+          showToast(`Saved ${entries.length} ${entries.length === 1 ? "score" : "scores"} for ${classroom.name}.`);
+        } finally {
+          button.disabled = !elements.scoreEntryClass.value || !elements.scoreEntryAssessment.value || !elements.scoreEntryDate.value;
         }
       }
 
@@ -1492,7 +1882,8 @@
       function visibleResults() {
         const query = elements.search.value.trim().toLocaleLowerCase();
         return state.results.filter((row) => {
-          const matchesFilters = (!elements.classFilter.value || row.classId === elements.classFilter.value)
+          const matchesFilters = (!elements.sectionFilter.value || row.sectionId === elements.sectionFilter.value)
+            && (!elements.classFilter.value || row.classId === elements.classFilter.value)
             && (!elements.streamFilter.value || row.streamId === elements.streamFilter.value)
             && (!elements.subjectFilter.value || row.subject === elements.subjectFilter.value)
             && (!elements.assessmentFilter.value || row.assessment === elements.assessmentFilter.value);
@@ -1511,11 +1902,12 @@
           : 0;
         const subjects = new Map();
         rows.forEach((row) => {
-          const current = subjects.get(row.subject) || { totalScore: 0, totalMaxScore: 0, count: 0 };
+          const subjectLabel = elements.sectionFilter.value ? row.subject : `${row.sectionName} · ${row.subject}`;
+          const current = subjects.get(subjectLabel) || { totalScore: 0, totalMaxScore: 0, count: 0 };
           current.totalScore += row.score;
           current.totalMaxScore += row.maxScore;
           current.count += 1;
-          subjects.set(row.subject, current);
+          subjects.set(subjectLabel, current);
         });
         const topSubject = [...subjects.entries()].sort((a, b) => b[1].totalScore / b[1].totalMaxScore - a[1].totalScore / a[1].totalMaxScore)[0];
         document.querySelector("#metric-students").textContent = String(students);
@@ -1523,7 +1915,9 @@
         document.querySelector("#metric-average").textContent = rows.length ? `${average.toFixed(1)}%` : "—";
         document.querySelector("#metric-attainment").textContent = rows.length ? `${attainment.toFixed(0)}%` : "—";
         document.querySelector("#metric-top-subject").textContent = topSubject ? topSubject[0] : "—";
-        document.querySelector("#top-subject-caption").textContent = topSubject ? `${(topSubject[1].totalScore / topSubject[1].totalMaxScore * 100).toFixed(1)}% class average` : "By average score";
+        document.querySelector("#top-subject-caption").textContent = topSubject
+          ? `${(topSubject[1].totalScore / topSubject[1].totalMaxScore * 100).toFixed(1)}% average`
+          : "By average score";
         document.querySelector("#average-caption").textContent = `Weighted across ${rows.length} ${rows.length === 1 ? "result" : "results"}`;
       }
 
@@ -1536,7 +1930,11 @@
         document.querySelector("#chart-description").textContent = `Average score by ${label}, shown as a percentage.`;
         const aggregate = new Map();
         rows.forEach((row) => {
-          const groupName = mode === "stream" ? `${row.className} — ${row.streamName}` : row[name];
+          const groupName = mode === "stream"
+            ? `${row.className} — ${row.streamName}`
+            : mode === "subject" && !elements.sectionFilter.value
+              ? `${row.sectionName} · ${row.subject}`
+              : row[name];
           const entry = aggregate.get(groupName) || { totalScore: 0, totalMaxScore: 0 };
           entry.totalScore += row.score;
           entry.totalMaxScore += row.maxScore;
@@ -1623,6 +2021,8 @@
             student: row.student,
             className: row.className,
             streamName: row.streamName || "",
+            sectionId: row.sectionId,
+            sectionName: row.sectionName,
             assessmentCount: 0,
             totalScore: 0,
             totalMaxScore: 0
@@ -1637,7 +2037,7 @@
             ...learner,
             average: learner.totalMaxScore ? learner.totalScore / learner.totalMaxScore * 100 : 0
           }))
-            .sort((a, b) => a.className.localeCompare(b.className) || a.streamName.localeCompare(b.streamName) || a.student.localeCompare(b.student));
+            .sort((a, b) => a.sectionName.localeCompare(b.sectionName) || a.className.localeCompare(b.className) || a.streamName.localeCompare(b.streamName) || a.student.localeCompare(b.student));
       }
 
       function renderLearnerSummary(rows) {
@@ -1645,23 +2045,27 @@
         const body = document.querySelector("#learner-summary-body");
         body.innerHTML = "";
         if (!learners.length) {
-          body.innerHTML = '<tr><td class="empty-row" colspan="7">No learners match these filters.</td></tr>';
+          body.innerHTML = '<tr><td class="empty-row" colspan="9">No learners match these filters.</td></tr>';
         } else {
           learners.forEach((learner) => {
             const level = gradeFor(learner.average);
             const tr = document.createElement("tr");
             tr.innerHTML = `
+              <td>${escapeHtml(learner.sectionName)}</td>
               <td><div class="student-cell"><span class="student-avatar" aria-hidden="true">${escapeHtml(learner.student.split(/\s+/).map((part) => part.match(/[\p{L}\p{N}]/u)?.[0]).filter(Boolean).slice(0, 2).join("").toUpperCase())}</span>${escapeHtml(learner.student)}</div></td>
               <td>${escapeHtml(learner.className)}</td>
               <td>${escapeHtml(learner.streamName || "—")}</td>
               <td>${learner.assessmentCount}</td>
               <td>${formatMark(learner.totalScore)} / ${formatMark(learner.totalMaxScore)}</td>
               <td>${learner.average.toFixed(1)}%</td>
-              <td><span class="grade-pill ${level.gradeClass}" title="${level.descriptor}">${level.code}</span> ${level.descriptor}</td>`;
+              <td><span class="grade-pill ${level.gradeClass}" title="${level.descriptor}">${level.code}</span> ${level.descriptor}</td>
+              <td>${learner.studentId
+                ? `<button type="button" class="button report-card-button" data-student-report="${escapeHtml(learner.studentId)}" aria-label="Print report card for ${escapeHtml(learner.student)}">Print card</button>`
+                : "—"}</td>`;
             body.append(tr);
           });
         }
-        document.querySelector("#learner-summary-description").textContent = "Average is total marks earned ÷ total possible marks. Percentage bands are a reporting aid; confirm them with your school’s rubric.";
+        document.querySelector("#learner-summary-description").textContent = "Totals reflect the selected filters. Print cards include all recorded assessments for each learner.";
         document.querySelector("#learner-summary-count").textContent = `${learners.length} ${learners.length === 1 ? "learner" : "learners"} in this view`;
       }
 
@@ -1686,7 +2090,7 @@
             const tr = document.createElement("tr");
             tr.innerHTML = `
               <td><div class="student-cell"><span class="student-avatar" aria-hidden="true">${escapeHtml(initials)}</span>${escapeHtml(row.student)}</div></td>
-              <td>${escapeHtml(row.className)}</td>
+              <td>${escapeHtml(row.sectionName)} · ${escapeHtml(row.className)}</td>
               <td>${escapeHtml(row.streamName || "—")}</td>
               <td>${escapeHtml(row.subject)}</td>
               <td>${escapeHtml(row.assessment)}</td>
@@ -1744,6 +2148,7 @@
               id: classroom.id,
               kind,
               className: classroom.name,
+              sectionName: sectionName(classroom.section_id),
               streamName: "",
               enrolled: state.students.filter((student) => student.class_id === classroom.id).length,
               results,
@@ -1758,6 +2163,7 @@
             id: stream.id,
             kind,
             className: classroom?.name || "Unknown class",
+            sectionName: sectionName(classroom?.section_id),
             streamName: stream.name,
             enrolled: state.students.filter((student) => student.stream_id === stream.id).length,
             results,
@@ -1774,10 +2180,12 @@
         }
         body.innerHTML = groups.map((group) => {
           const stats = group.stats;
-          const groupLabel = group.kind === "stream" ? `${group.className} — ${group.streamName}` : group.className;
+          const groupLabel = group.kind === "stream"
+            ? `${group.sectionName} — ${group.className} — ${group.streamName}`
+            : `${group.sectionName} — ${group.className}`;
           const leadingCells = group.kind === "stream"
-            ? `<td>${escapeHtml(group.className)}</td><td>${escapeHtml(group.streamName)}</td>`
-            : `<td>${escapeHtml(group.className)}</td>`;
+            ? `<td>${escapeHtml(group.sectionName)} · ${escapeHtml(group.className)}</td><td>${escapeHtml(group.streamName)}</td>`
+            : `<td>${escapeHtml(group.sectionName)} · ${escapeHtml(group.className)}</td>`;
           return `<tr>
             ${leadingCells}
             <td>${group.enrolled}</td>
@@ -1811,6 +2219,7 @@
         const learners = learnerSummaries(group.results);
         const summaryRow = {
           recordType: "Group summary",
+          sectionName: group.sectionName,
           className: group.className,
           streamName: group.streamName,
           student: "",
@@ -1825,6 +2234,7 @@
         };
         const learnerRows = learners.map((learner) => ({
           recordType: "Learner",
+          sectionName: learner.sectionName,
           className: learner.className,
           streamName: learner.streamName,
           student: learner.student,
@@ -1845,6 +2255,7 @@
         const filename = `${group.kind}-${label}`.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "results-report";
         const columns = [
           { label: "RecordType", value: (row) => row.recordType },
+          { label: "SchoolSection", value: (row) => row.sectionName },
           { label: "Class", value: (row) => row.className },
           { label: "Stream", value: (row) => row.streamName },
           { label: "Student", value: (row) => row.student },
@@ -1867,7 +2278,9 @@
       function printGroupReport(group) {
         const stats = group.stats;
         const learners = learnerSummaries(group.results);
-        const title = group.kind === "stream" ? `${group.className} — ${group.streamName}` : group.className;
+        const title = group.kind === "stream"
+          ? `${group.sectionName} — ${group.className} — ${group.streamName}`
+          : `${group.sectionName} — ${group.className}`;
         const groupSummary = group.kind === "stream" ? "Stream report" : "Class report";
         const learnerRows = learners.length
           ? learners.map((learner) => `<tr>
@@ -1880,6 +2293,7 @@
             </tr>`).join("")
           : `<tr><td colspan="${group.kind === "class" ? 6 : 5}">No results have been recorded for this ${group.kind}.</td></tr>`;
         const printReport = document.querySelector("#print-report");
+        printReport.classList.remove("report-card-print");
         printReport.innerHTML = `
           <h1>Results analysis</h1>
           <p>${escapeHtml(groupSummary)}: ${escapeHtml(title)} · Printed ${escapeHtml(new Date().toLocaleDateString())}</p>
@@ -1898,14 +2312,139 @@
             <tbody>${learnerRows}</tbody>
           </table>
           <p>CBE percentage bands are a reporting aid; confirm cutoffs with your school’s assessment rubric.</p>`;
+        displayPrintReport();
+      }
+
+      function displayPrintReport() {
+        const printReport = document.querySelector("#print-report");
         printReport.hidden = false;
         document.body.classList.add("printing-report");
         window.addEventListener("afterprint", () => {
           document.body.classList.remove("printing-report");
           printReport.hidden = true;
+          printReport.classList.remove("report-card-print");
           printReport.replaceChildren();
         }, { once: true });
         window.print();
+      }
+
+      function printStudentReportCard(studentId) {
+        const student = state.students.find((item) => item.id === studentId);
+        if (!student) {
+          showToast("That student is no longer available. Refresh the school data and try again.", true);
+          return;
+        }
+        const results = state.results.filter((row) => row.studentId === studentId);
+        if (!results.length) {
+          showToast("This student has no recorded results to include in a report card.", true);
+          return;
+        }
+
+        const classroom = state.classes.find((item) => item.id === student.class_id);
+        const stream = state.streams.find((item) => item.id === student.stream_id);
+        const totalScore = results.reduce((sum, row) => sum + row.score, 0);
+        const totalMaxScore = results.reduce((sum, row) => sum + row.maxScore, 0);
+        const average = totalMaxScore ? totalScore / totalMaxScore * 100 : 0;
+        const overallGrade = cbeLevel(average);
+        const classResults = state.results.filter((row) => row.classId === student.class_id);
+        const classLearners = learnerSummaries(classResults);
+        const learnerSummary = classLearners.find((learner) => learner.studentId === studentId);
+        const classPosition = learnerSummary
+          ? 1 + classLearners.filter((learner) => learner.average > learnerSummary.average).length
+          : null;
+
+        const subjectTotals = new Map();
+        classResults.forEach((row) => {
+          if (!row.studentId) return;
+          const subjectLearners = subjectTotals.get(row.subject) || new Map();
+          const total = subjectLearners.get(row.studentId) || { score: 0, maxScore: 0 };
+          total.score += row.score;
+          total.maxScore += row.maxScore;
+          subjectLearners.set(row.studentId, total);
+          subjectTotals.set(row.subject, subjectLearners);
+        });
+
+        const subjectRows = [...subjectTotals.entries()]
+          .sort(([subjectA], [subjectB]) => subjectA.localeCompare(subjectB))
+          .map(([subject, subjectLearners]) => {
+            const total = subjectLearners.get(studentId);
+            if (!total) return "";
+            const subjectAverage = total.maxScore ? total.score / total.maxScore * 100 : 0;
+            const subjectRank = 1 + [...subjectLearners.values()]
+              .filter((marks) => total.maxScore && marks.maxScore && marks.score / marks.maxScore * 100 > subjectAverage)
+              .length;
+            const grade = cbeLevel(subjectAverage);
+            return `<tr>
+              <td>${escapeHtml(subject)}</td>
+              <td>${formatMark(total.score)} / ${formatMark(total.maxScore)}</td>
+              <td>${escapeHtml(grade.code)}</td>
+              <td>${subjectAverage.toFixed(1)}%</td>
+              <td>${subjectRank} / ${subjectLearners.size}</td>
+              <td></td>
+              <td></td>
+            </tr>`;
+          })
+          .filter(Boolean);
+        const enrolled = state.students.filter((item) => item.class_id === student.class_id).length;
+        const reportingPeriod = document.querySelector("#term-select").selectedOptions[0]?.textContent || "—";
+        const printReport = document.querySelector("#print-report");
+        printReport.classList.add("report-card-print");
+        printReport.innerHTML = `
+          <article class="report-card">
+            <header class="report-card-header">
+              <div>
+                <h1>Student report card</h1>
+                <p>${escapeHtml(sectionName(classroom?.section_id))} · ${escapeHtml(classroom?.name || "Class")} · ${escapeHtml(stream?.name || "Stream")}</p>
+              </div>
+              <div class="report-card-term">Selected term: ${escapeHtml(reportingPeriod)}</div>
+            </header>
+            <div class="report-card-details">
+              <div class="report-card-field"><strong>Name:</strong>${escapeHtml(student.full_name)}</div>
+              <div class="report-card-field"><strong>School section:</strong>${escapeHtml(sectionName(classroom?.section_id))}</div>
+              <div class="report-card-field"><strong>Form:</strong>${escapeHtml(classroom?.name || "—")}</div>
+              <div class="report-card-field"><strong>Stream:</strong>${escapeHtml(stream?.name || "—")}</div>
+              <div class="report-card-field"><strong>Admission no:</strong>${escapeHtml(student.admission_number || "—")}</div>
+              <div class="report-card-field"><strong>Date:</strong>${escapeHtml(new Date().toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" }))}</div>
+              <div class="report-card-field"><strong>KCPE marks:</strong>&nbsp;</div>
+              <div class="report-card-field"><strong>Enrolled in class:</strong>${enrolled}</div>
+              <div class="report-card-field"><strong>Results recorded:</strong>${results.length}</div>
+            </div>
+            <h2 class="report-card-section-title">Overall performance</h2>
+            <div class="report-card-summary">
+              <div class="report-card-field"><strong>Total marks:</strong>${formatMark(totalScore)} / ${formatMark(totalMaxScore)}</div>
+              <div class="report-card-field"><strong>Mean score:</strong>${average.toFixed(1)}%</div>
+              <div class="report-card-field"><strong>Grade:</strong>${escapeHtml(overallGrade.code)} — ${escapeHtml(overallGrade.descriptor)}</div>
+              <div class="report-card-field"><strong>Position:</strong>${classPosition ? `${classPosition} / ${classLearners.length} assessed` : "—"}</div>
+              <div class="report-card-field"><strong>Subjects done / graded:</strong>${subjectRows.length}</div>
+              <div class="report-card-field"><strong>Total points:</strong>&nbsp;</div>
+              <div class="report-card-field"><strong>Average points:</strong>&nbsp;</div>
+            </div>
+            <h2 class="report-card-section-title">Subject results</h2>
+            <table class="report-card-table">
+              <thead><tr>
+                <th scope="col">Subject</th>
+                <th scope="col">Marks earned / possible</th>
+                <th scope="col">Grade</th>
+                <th scope="col">Mean</th>
+                <th scope="col">Position</th>
+                <th scope="col">Teacher's remarks</th>
+                <th scope="col">Initial</th>
+              </tr></thead>
+              <tbody>${subjectRows.join("") || '<tr><td colspan="7">No subject results recorded.</td></tr>'}</tbody>
+            </table>
+            <p class="report-card-note">Ranks compare learners with recorded results in this class. Results include all recorded assessments; they are not separated by term. KCPE marks, points conversion and remarks are not stored and can be completed by the school.</p>
+            <div class="report-card-comments">
+              <h2 class="report-card-section-title">General remarks</h2>
+              <p>&nbsp;</p>
+              <p>&nbsp;</p>
+            </div>
+            <div class="report-card-signatures">
+              <div>Class teacher signature / date</div>
+              <div>Principal / deputy principal signature / date</div>
+              <div>Parent / guardian signature / date</div>
+            </div>
+          </article>`;
+        displayPrintReport();
       }
 
       function csvCell(value) {
@@ -1938,6 +2477,7 @@
         const columns = [
           { label: "Student", value: (row) => row.student },
           { label: "AdmissionNumber", value: (row) => row.admissionNumber },
+          { label: "SchoolSection", value: (row) => row.sectionName },
           { label: "Class", value: (row) => row.className },
           { label: "Stream", value: (row) => row.streamName },
           { label: "Subject", value: (row) => row.subject },
@@ -1961,6 +2501,7 @@
         }
         const columns = [
           { label: "Student", value: (learner) => learner.student },
+          { label: "SchoolSection", value: (learner) => learner.sectionName },
           { label: "Class", value: (learner) => learner.className },
           { label: "Stream", value: (learner) => learner.streamName },
           { label: "Assessments", value: (learner) => learner.assessmentCount },
@@ -2005,6 +2546,7 @@
         const indexes = {
           student: locate("student", "studentname", "learner", "learnername", "name"),
           admissionNumber: locate("admissionnumber", "admissionno", "admno", "studentid"),
+          sectionName: locate("schoolsection", "section", "schoolstage"),
           className: locate("class", "classname", "group"),
           streamName: locate("stream", "streamname"),
           subject: locate("subject", "course"),
@@ -2036,6 +2578,7 @@
           return {
             student: get("student").trim(),
             admissionNumber: get("admissionNumber").trim(),
+            sectionName: get("sectionName").trim(),
             className: get("className").trim(),
             streamName: get("streamName").trim(),
             subject: get("subject").trim(),
@@ -2052,11 +2595,12 @@
       document.querySelector("#class-form").addEventListener("submit", (event) => {
         submitSettingsForm(event, "Class added.", async () => {
           const name = document.querySelector("#new-class-name").value.trim();
-          if (!name) throw new Error("Enter a class name.");
+          const sectionId = document.querySelector("#new-class-section").value;
+          if (!name || !state.sections.some((section) => section.id === sectionId)) throw new Error("Enter a class name and choose a school section.");
           if (state.classes.some((classroom) => classroom.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
             throw new Error("A class with that name already exists.");
           }
-          const { error } = await supabaseClient.from("school_classes").insert({ name });
+          const { error } = await supabaseClient.from("school_classes").insert({ name, section_id: sectionId });
           if (error) throw new Error(`Could not add the class: ${error.message}`);
         });
       });
@@ -2101,6 +2645,35 @@
         });
       });
 
+      document.querySelector("#subject-form").addEventListener("submit", (event) => {
+        submitSettingsForm(event, "Subject added.", async () => {
+          const name = document.querySelector("#new-subject-name").value.trim();
+          const sectionId = document.querySelector("#new-subject-section").value;
+          if (!name || !state.sections.some((section) => section.id === sectionId)) throw new Error("Enter a subject name and choose a school section.");
+          if (state.subjects.some((subject) => subject.section_id === sectionId && subject.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+            throw new Error("That subject already exists in this school section.");
+          }
+          const { error } = await supabaseClient.from("school_subjects").insert({ name, section_id: sectionId });
+          if (error) throw new Error(`Could not add the subject: ${error.message}`);
+        });
+      });
+
+      document.querySelector("#assessment-form").addEventListener("submit", (event) => {
+        submitSettingsForm(event, "Examination added.", async () => {
+          const name = document.querySelector("#new-assessment-name").value.trim();
+          const assessmentDate = document.querySelector("#new-assessment-date").value;
+          if (!name) throw new Error("Enter an examination name.");
+          if (state.assessments.some((assessment) => assessment.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+            throw new Error("That examination already exists.");
+          }
+          const { error } = await supabaseClient.from("school_assessments").insert({
+            name,
+            assessment_date: assessmentDate || null
+          });
+          if (error) throw new Error(`Could not add the examination: ${error.message}`);
+        });
+      });
+
       function handleReportAction(event) {
         const button = event.target.closest("[data-report-action]");
         if (!button) return;
@@ -2117,7 +2690,7 @@
 
       document.querySelector("#import-button").addEventListener("click", () => elements.fileInput.click());
       document.querySelector("#help-import").addEventListener("click", () => {
-        showToast("Add students in School settings first. CSV columns: Student, Subject, Score; AdmissionNumber, Class, Stream, Assessment, MaxScore and Date are optional.");
+        showToast("Add students and subjects in their school sections first. CSV columns: Student, Subject, Score; AdmissionNumber, SchoolSection, Class, Stream, Assessment, MaxScore and Date are optional.");
       });
       elements.fileInput.addEventListener("change", async (event) => {
         const file = event.target.files?.[0];
@@ -2131,9 +2704,11 @@
                 && (student.admission_number || "").toLocaleLowerCase() === row.admissionNumber.toLocaleLowerCase();
               const classMatches = !row.className
                 || state.classes.find((classroom) => classroom.id === student.class_id)?.name.toLocaleLowerCase() === row.className.toLocaleLowerCase();
+              const studentClass = state.classes.find((classroom) => classroom.id === student.class_id);
+              const sectionMatches = !row.sectionName || sectionName(studentClass?.section_id).toLocaleLowerCase() === row.sectionName.toLocaleLowerCase();
               const streamMatches = !row.streamName
                 || state.streams.find((stream) => stream.id === student.stream_id)?.name.toLocaleLowerCase() === row.streamName.toLocaleLowerCase();
-              return (row.admissionNumber ? admissionMatches : nameMatches) && classMatches && streamMatches;
+              return (row.admissionNumber ? admissionMatches : nameMatches) && classMatches && sectionMatches && streamMatches;
             });
             if (!matches.length) {
               throw new Error(`Row ${index + 2}: ${row.student} was not found in the student list. Add the student in School settings first.`);
@@ -2142,6 +2717,12 @@
               throw new Error(`Row ${index + 2}: ${row.student} matches more than one student. Include their AdmissionNumber and, if needed, Class and Stream.`);
             }
             const student = matches[0];
+            const studentClass = state.classes.find((classroom) => classroom.id === student.class_id);
+            const subjectIsInSection = state.subjects.some((subject) => subject.section_id === studentClass?.section_id
+              && subject.name.toLocaleLowerCase() === row.subject.toLocaleLowerCase());
+            if (!subjectIsInSection) {
+              throw new Error(`Row ${index + 2}: ${row.subject} is not set up for ${sectionName(studentClass?.section_id)}. Add the subject in that section first.`);
+            }
             return {
               student_id: student.id,
               subject: row.subject,
@@ -2170,13 +2751,49 @@
           event.target.value = "";
         }
       });
+      elements.sectionFilter.addEventListener("change", () => {
+        elements.classFilter.value = "";
+        elements.streamFilter.value = "";
+        refreshFilters();
+        if (!elements.scoreEntrySection.value) refreshScoreEntrySelectors();
+        state.page = 1;
+        render();
+      });
+      elements.scoreEntrySection.addEventListener("change", () => {
+        elements.scoreEntryClass.value = "";
+        refreshScoreEntrySelectors();
+      });
+      elements.scoreEntryClass.addEventListener("change", renderScoreEntryGrid);
+      elements.scoreEntryAssessment.addEventListener("change", () => {
+        elements.scoreEntryDate.value = elements.scoreEntryAssessment.value
+          ? defaultScoreEntryDate(elements.scoreEntryAssessment.value)
+          : "";
+        renderScoreEntryGrid();
+      });
+      elements.scoreEntryDate.addEventListener("change", renderScoreEntryGrid);
+      elements.saveScores.addEventListener("click", async () => {
+        try {
+          await saveScoreEntry();
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Could not save scores.";
+          elements.scoreEntryMessage.textContent = message;
+          showToast(message, true);
+        }
+      });
       elements.classFilter.addEventListener("change", () => {
-        refreshStreamFilter();
+        refreshFilters();
+        if (!elements.scoreEntryClass.value && elements.scoreEntrySection.value === elements.sectionFilter.value) {
+          refreshScoreEntrySelectors();
+        }
         state.page = 1;
         render();
       });
       [elements.streamFilter, elements.subjectFilter, elements.assessmentFilter].forEach((select) => {
-        select.addEventListener("change", () => { state.page = 1; render(); });
+        select.addEventListener("change", () => {
+          if (select === elements.streamFilter) refreshFilters();
+          state.page = 1;
+          render();
+        });
       });
       elements.search.addEventListener("input", () => { state.page = 1; render(); });
       elements.chartMode.addEventListener("change", render);
@@ -2189,12 +2806,13 @@
         render();
       });
       document.querySelector("#clear-filters").addEventListener("click", () => {
+        elements.sectionFilter.value = "";
         elements.classFilter.value = "";
-        refreshStreamFilter();
         elements.streamFilter.value = "";
         elements.subjectFilter.value = "";
         elements.assessmentFilter.value = "";
         elements.search.value = "";
+        refreshFilters();
         state.page = 1;
         render();
       });
@@ -2202,6 +2820,10 @@
         document.querySelector(selector).addEventListener("click", exportCsv);
       });
       document.querySelector("#summary-export").addEventListener("click", exportSummaryCsv);
+      document.querySelector("#learner-summary-body").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-student-report]");
+        if (button) printStudentReportCard(button.dataset.studentReport);
+      });
       window.addEventListener("resize", () => {
         window.requestAnimationFrame(() => renderChart(visibleResults()));
       });

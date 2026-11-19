@@ -2,6 +2,10 @@
 
 A GitHub Pages results dashboard with Supabase email/password sign-in and shared school data.
 
-Authorized staff can manage classes, streams and students, import assessment results, review CBE-style summaries, and print or download class and stream reports. School records are stored in Supabase with row-level security; the public site uses the frontend and public Supabase key, not a copy of the student records.
+Authorized staff can manage classes, streams and students across Lower Primary, Upper Primary, Junior School and Senior School; add section-specific subjects and school-wide examinations; enter class scores in a grid with one column per subject; import assessment results; review CBE-style summaries; and print individual student report cards and class or stream reports. The score grid lets staff set the maximum marks for each subject and skips blank cells when saving. Individual cards show all recorded assessments for that student; KCPE marks, points conversion, teacher remarks and signatures are left for the school to complete. School records are stored in Supabase with row-level security; the public site uses the frontend and public Supabase key, not a copy of the student records.
+
+Before using the subject and examination controls, apply the migrations in `supabase/migrations` to the Supabase project. Existing Grade 8/9 classes and current subjects are assigned to Junior School; new classes and subjects must be assigned to a school section.
+
+CSV results are matched to students and require a subject registered for that student's school section. `SchoolSection` is optional when importing; `Student`, `Subject` and `Score` are required.
 
 Never put passwords, access tokens, service-role keys, or student records in this repository. Follow your school's student-data privacy requirements before entering identifiable results. CBE percentage bands are reporting aids and should be checked against the school's assessment rubric.
