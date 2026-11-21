@@ -384,6 +384,27 @@
       font-size: 11px;
     }
     .settings-form input:focus, .settings-form select:focus { border-color: #9eb4ff; box-shadow: 0 0 0 3px rgb(65 105 225 / 9%); }
+    .settings-form textarea {
+      width: 100%;
+      min-height: 64px;
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      outline: none;
+      resize: vertical;
+      background: white;
+      color: var(--ink);
+      font: inherit;
+      font-size: 11px;
+    }
+    .settings-form textarea:focus { border-color: #9eb4ff; box-shadow: 0 0 0 3px rgb(65 105 225 / 9%); }
+    .rubric-settings-card { grid-column: span 2; }
+    .rubric-level-list { display: grid; gap: 8px; }
+    .rubric-level-row { display: grid; grid-template-columns: 58px minmax(110px, 1fr) 90px 70px minmax(180px, 1.6fr); align-items: start; gap: 7px; padding: 9px; border: 1px solid var(--line); border-radius: 7px; background: white; }
+    .rubric-level-code { padding-top: 9px; color: var(--ink); font-size: 11px; font-weight: 750; }
+    .rubric-level-row .auth-field { min-width: 0; margin: 0; }
+    .rubric-level-row label { font-size: 9px; }
+    .rubric-level-row input { height: 32px; }
     .settings-list { display: grid; gap: 6px; max-height: 210px; overflow: auto; margin: 0; padding: 0 14px 14px; list-style: none; }
     .settings-list li { padding: 8px 9px; border: 1px solid #edf0f5; border-radius: 6px; background: white; color: #536076; font-size: 10px; }
     .settings-list .empty-setting { color: var(--muted); font-style: italic; }
@@ -471,6 +492,8 @@
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .analysis-grid { grid-template-columns: minmax(0, 1.4fr) minmax(235px, .9fr); }
       .settings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .rubric-settings-card { grid-column: 1 / -1; }
+      .rubric-level-row { grid-template-columns: 48px minmax(100px, 1fr) 78px 60px minmax(130px, 1.4fr); }
     }
     @media (max-width: 760px) {
       .sidebar { position: static; width: 60px; flex: 0 0 60px; padding: 19px 8px; }
@@ -486,6 +509,9 @@
       .heading-actions .button { flex: 1; }
       .analysis-grid { grid-template-columns: 1fr; }
       .settings-grid { grid-template-columns: 1fr; }
+      .rubric-settings-card { grid-column: auto; }
+      .rubric-level-row { grid-template-columns: 48px minmax(0, 1fr) 75px 60px; }
+      .rubric-level-row .auth-field:last-child { grid-column: 2 / -1; }
       .filter-bar { flex-wrap: wrap; }
       .search-wrap { width: 100%; margin-left: 0; }
       .filter-control { flex: 1; min-width: 110px; }
@@ -537,31 +563,38 @@
       #print-report.class-analysis-print .learner-subject-results td { overflow-wrap: anywhere; text-align: center; }
       #print-report.class-analysis-print .learner-subject-results th:nth-child(2),
       #print-report.class-analysis-print .learner-subject-results td:nth-child(2) { text-align: left; }
-      #print-report.report-card-print { font-size: 11px; }
+      #print-report.report-card-print { font-size: 11px; page: school-analysis-landscape; }
       .report-card { padding: 18px; border: 2px solid #243b64; }
-      .report-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 2px solid #243b64; }
-      .report-card-header h1 { margin: 0 0 4px !important; color: #243b64; font-size: 22px !important; letter-spacing: .5px; text-transform: uppercase; }
-      .report-card-header p { margin: 0 !important; color: #555; font-size: 10px; }
-      .report-card-term { padding: 7px 10px; border: 1px solid #9caac0; font-size: 11px; font-weight: 700; white-space: nowrap; }
-      .report-card-details, .report-card-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 14px; margin-top: 12px; }
+      .report-card-header { display: block; padding-bottom: 9px; border-bottom: 2px solid #243b64; text-align: center; }
+      .report-card-header h1 { margin: 0 0 3px !important; color: #243b64; font-size: 19px !important; letter-spacing: .4px; text-transform: uppercase; }
+      .report-card-header p { margin: 2px 0 0 !important; color: #555; font-size: 9px; }
+      .report-card-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 9px; font-size: 11px; }
+      .report-card-title strong { color: #243b64; font-size: 13px; letter-spacing: .35px; }
+      .report-card-details, .report-card-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 12px; margin-top: 8px; }
       .report-card-field { min-height: 25px; padding: 4px 0; border-bottom: 1px solid #bbb; }
       .report-card-field strong { margin-right: 5px; color: #333; font-size: 9px; text-transform: uppercase; }
-      .report-card-section-title { margin: 15px 0 0 !important; color: #243b64; font-size: 12px; text-transform: uppercase; }
-      .report-card-summary { grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 8px 10px; background: #f2f5fa; }
-      #print-report .report-card-table { margin-top: 8px; table-layout: fixed; }
-      #print-report .report-card-table th, #print-report .report-card-table td { padding: 5px; font-size: 9px; }
-      #print-report .report-card-table th:nth-child(1) { width: 13%; }
-      #print-report .report-card-table th:nth-child(2) { width: 12%; }
-      #print-report .report-card-table th:nth-child(3),
-      #print-report .report-card-table th:nth-child(4),
-      #print-report .report-card-table th:nth-child(5) { width: 8%; }
-      #print-report .report-card-table th:nth-child(6) { width: 29%; }
-      #print-report .report-card-table th:nth-child(7) { width: 7%; }
-      .report-card-note { margin: 8px 0 0 !important; font-size: 9px; }
+      .report-card-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px 12px; padding: 7px 10px; background: #f2f5fa; }
+      .report-card-section-title { margin: 11px 0 0 !important; color: #243b64; font-size: 11px; text-transform: uppercase; }
+      #print-report .report-card-table { margin-top: 6px; table-layout: fixed; }
+      #print-report .report-card-table th, #print-report .report-card-table td { padding: 4px; font-size: 8px; white-space: normal; overflow-wrap: anywhere; }
+      #print-report .report-card-table th:nth-child(1) { width: 17%; }
+      #print-report .report-card-table th:nth-child(2) { width: 13%; }
+      #print-report .report-card-table th:nth-child(3) { width: 10%; }
+      #print-report .report-card-table th:nth-child(4) { width: 7%; }
+      #print-report .report-card-table th:nth-child(5) { width: 10%; }
+      #print-report .report-card-table th:nth-child(6) { width: 10%; }
+      #print-report .report-card-table th:nth-child(7) { width: 33%; }
+      #print-report .report-card-progress th:nth-child(1) { width: 55%; }
+      #print-report .report-card-progress th:nth-child(2) { width: 17%; }
+      #print-report .report-card-progress th:nth-child(3) { width: 12%; }
+      #print-report .report-card-progress th:nth-child(4) { width: 16%; }
+      #print-report .report-card-table tfoot td { font-weight: 700; background: #f2f5fa; }
+      .report-card-progress { margin-top: 4px; }
+      .report-card-comment-text { min-height: 38px; margin: 5px 0 0 !important; padding: 5px 0; border-bottom: 1px solid #bbb; line-height: 1.4; }
       .report-card-comments { margin-top: 12px; }
-      .report-card-comments p { margin: 8px 0 0 !important; padding-bottom: 14px; border-bottom: 1px solid #bbb; }
       .report-card-signatures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 14px; }
       .report-card-signatures div { padding-top: 15px; border-bottom: 1px solid #777; font-size: 9px; }
+      .report-card-note { margin: 7px 0 0 !important; color: #555; font-size: 8px; }
     }
   </style>
 </head>
@@ -876,7 +909,7 @@
               <span class="metric-icon green" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.4 4.2L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/></svg></span>
             </div>
             <div class="metric-value" id="metric-attainment">—</div>
-            <div class="metric-foot"><span class="neutral">EE + ME results · working band 70%+</span></div>
+            <div class="metric-foot"><span class="neutral">EE1 + EE2 + ME1 + ME2 results</span></div>
           </article>
           <article class="metric-card">
             <div class="metric-top">
@@ -918,7 +951,7 @@
             </header>
             <div class="distribution">
               <div class="distribution-list" id="distribution-list"></div>
-              <p class="distribution-note" id="distribution-note">CBE levels: EE (85%+), ME (70–84%), AE (50–69%), and BE (below 50%). Percentage bands are a reporting aid; confirm cutoffs with your school’s assessment rubric.</p>
+              <p class="distribution-note" id="distribution-note">Eight CBC levels: EE1, EE2, ME1, ME2, AE1, AE2, BE1 and BE2. School administrators can edit thresholds in settings.</p>
             </div>
           </article>
         </section>
@@ -940,10 +973,14 @@
                   <th scope="col">Results</th>
                   <th scope="col">Total marks</th>
                   <th scope="col">Average</th>
-                  <th scope="col">EE</th>
-                  <th scope="col">ME</th>
-                  <th scope="col">AE</th>
-                  <th scope="col">BE</th>
+                  <th scope="col">EE1</th>
+                  <th scope="col">EE2</th>
+                  <th scope="col">ME1</th>
+                  <th scope="col">ME2</th>
+                  <th scope="col">AE1</th>
+                  <th scope="col">AE2</th>
+                  <th scope="col">BE1</th>
+                  <th scope="col">BE2</th>
                   <th scope="col">Report</th>
                 </tr>
               </thead>
@@ -970,10 +1007,14 @@
                   <th scope="col">Results</th>
                   <th scope="col">Total marks</th>
                   <th scope="col">Average</th>
-                  <th scope="col">EE</th>
-                  <th scope="col">ME</th>
-                  <th scope="col">AE</th>
-                  <th scope="col">BE</th>
+                  <th scope="col">EE1</th>
+                  <th scope="col">EE2</th>
+                  <th scope="col">ME1</th>
+                  <th scope="col">ME2</th>
+                  <th scope="col">AE1</th>
+                  <th scope="col">AE2</th>
+                  <th scope="col">BE1</th>
+                  <th scope="col">BE2</th>
                   <th scope="col">Report</th>
                 </tr>
               </thead>
@@ -1119,6 +1160,41 @@
               </form>
               <ul class="settings-list" id="student-list"><li class="empty-setting">No students yet.</li></ul>
             </article>
+            <article class="settings-card">
+              <h3>School location</h3>
+              <p>These details appear at the top of printed learner report cards. Only school administrators can edit them.</p>
+              <form class="settings-form" id="school-location-form">
+                <div class="auth-field">
+                  <label for="school-postal-address">Postal address</label>
+                  <input id="school-postal-address" maxlength="160" placeholder="e.g. 159-60507">
+                </div>
+                <div class="auth-field">
+                  <label for="school-locality">Town / locality</label>
+                  <input id="school-locality" maxlength="100" placeholder="e.g. Mikinduri">
+                </div>
+                <div class="auth-field">
+                  <label for="school-ward">Ward</label>
+                  <input id="school-ward" maxlength="100">
+                </div>
+                <div class="auth-field">
+                  <label for="school-sub-county">Sub-county</label>
+                  <input id="school-sub-county" maxlength="100">
+                </div>
+                <div class="auth-field">
+                  <label for="school-county">County</label>
+                  <input id="school-county" maxlength="100" placeholder="e.g. Meru">
+                </div>
+                <button type="submit" class="button primary" id="school-location-submit">Save school location</button>
+              </form>
+            </article>
+            <article class="settings-card rubric-settings-card">
+              <h3>Eight-level CBC performance rubric</h3>
+              <p>Edit each level's minimum percentage, points, descriptor and automatic class-teacher comment. Thresholds must descend from the top level to 0.</p>
+              <form class="settings-form" id="rubric-form">
+                <div id="rubric-settings-rows"></div>
+                <button type="submit" class="button primary" id="rubric-submit">Save performance rubric</button>
+              </form>
+            </article>
           </div>
         </section>
 
@@ -1251,12 +1327,24 @@
       ];
 
       const state = { results: [], classes: [], streams: [], students: [], sections: [], subjects: [], assessments: [], page: 1, pageSize: 8, toastTimer: 0 };
-      const cbeBands = [
-        { code: "EE", descriptor: "Exceeding expectations", range: "85–100%", className: "band-excellent", gradeClass: "ee", minimum: 85 },
-        { code: "ME", descriptor: "Meeting expectations", range: "70–84%", className: "band-good", gradeClass: "me", minimum: 70 },
-        { code: "AE", descriptor: "Approaching expectations", range: "50–69%", className: "band-average", gradeClass: "ae", minimum: 50 },
-        { code: "BE", descriptor: "Below expectations", range: "Below 50%", className: "band-needs-work", gradeClass: "be", minimum: 0 }
+      const rubricCodes = ["EE1", "EE2", "ME1", "ME2", "AE1", "AE2", "BE1", "BE2"];
+      const rubricThemes = {
+        EE: { className: "band-excellent", gradeClass: "ee" },
+        ME: { className: "band-good", gradeClass: "me" },
+        AE: { className: "band-average", gradeClass: "ae" },
+        BE: { className: "band-needs-work", gradeClass: "be" }
+      };
+      const defaultCbeBands = [
+        { code: "EE1", descriptor: "Exceeding Expectations 1", minimum: 90, points: 8, teacherComment: "has demonstrated outstanding academic performance this term. Keep it up!" },
+        { code: "EE2", descriptor: "Exceeding Expectations 2", minimum: 75, points: 7, teacherComment: "has demonstrated excellent progress. Keep working hard to maintain this level." },
+        { code: "ME1", descriptor: "Meeting Expectations 1", minimum: 58, points: 6, teacherComment: "has shown very good progress. Aim even higher next term." },
+        { code: "ME2", descriptor: "Meeting Expectations 2", minimum: 41, points: 5, teacherComment: "is making steady progress. Regular practice will strengthen understanding." },
+        { code: "AE1", descriptor: "Approaching Expectations 1", minimum: 31, points: 4, teacherComment: "is developing essential skills. Consistent effort will lead to improvement." },
+        { code: "AE2", descriptor: "Approaching Expectations 2", minimum: 21, points: 3, teacherComment: "is beginning to grasp key concepts. Regular practice and support are encouraged." },
+        { code: "BE1", descriptor: "Below Expectations 1", minimum: 11, points: 2, teacherComment: "needs focused support in several learning areas. Work closely with the teacher on practice." },
+        { code: "BE2", descriptor: "Below Expectations 2", minimum: 0, points: 1, teacherComment: "requires extra support and regular guided practice to build foundational skills." }
       ];
+      let cbeBands = defaultCbeBands.map((band) => ({ ...band }));
       const elements = {
         sectionFilter: document.querySelector("#section-filter"),
         classFilter: document.querySelector("#class-filter"),
@@ -1305,6 +1393,7 @@
       let signedInUser = null;
       let signedInRole = null;
       let signedInSchoolId = null;
+      let currentSchool = null;
       let passwordRecoveryRequired = false;
       const pendingSchoolSetupKey = "classroom-pending-school-setup";
 
@@ -1314,6 +1403,44 @@
       const percentage = (row) => row.score / row.maxScore * 100;
       const formatMark = (mark) => Number(mark.toFixed(2)).toLocaleString("en");
       const formatPercent = (score, maxScore) => `${Number((score / maxScore * 100).toFixed(1))}%`;
+      function normalizeRubric(value) {
+        if (!Array.isArray(value) || value.length !== rubricCodes.length) {
+          throw new Error("The school rubric must have exactly eight performance levels.");
+        }
+        const bands = value.map((item, index) => {
+          const code = rubricCodes[index];
+          if (!item || item.code !== code) throw new Error("The rubric levels must remain in EE1 to BE2 order.");
+          const descriptor = typeof item.descriptor === "string" ? item.descriptor.trim() : "";
+          const teacherComment = typeof item.teacherComment === "string" ? item.teacherComment.trim() : "";
+          const minimum = Number(item.minimum);
+          const points = Number(item.points);
+          if (!descriptor || descriptor.length > 80 || !teacherComment || teacherComment.length > 500) {
+            throw new Error(`${code}: enter a descriptor and class-teacher comment within the allowed length.`);
+          }
+          if (!Number.isInteger(minimum) || minimum < 0 || minimum > 100) {
+            throw new Error(`${code}: minimum percentage must be a whole number from 0 to 100.`);
+          }
+          if (!Number.isInteger(points) || points < 1 || points > 8) {
+            throw new Error(`${code}: points must be a whole number from 1 to 8.`);
+          }
+          const theme = rubricThemes[code.slice(0, 2)];
+          return { code, descriptor, minimum, points, teacherComment, ...theme };
+        });
+        if (bands[0].minimum < 1 || bands.at(-1).minimum !== 0
+          || bands.some((band, index) => index > 0 && band.minimum >= bands[index - 1].minimum)) {
+          throw new Error("Rubric minimums must strictly descend from EE1 and finish at 0% for BE2.");
+        }
+        if (new Set(bands.map((band) => band.points)).size !== 8) {
+          throw new Error("Each rubric level must have a unique points value from 1 to 8.");
+        }
+        return bands.map((band, index) => ({
+          ...band,
+          range: index === 0
+            ? `${band.minimum}–100%`
+            : `${band.minimum}–${bands[index - 1].minimum - 1}%`
+        }));
+      }
+
       const cbeLevel = (score) => cbeBands.find((band) => score >= band.minimum);
       const formatDate = (date) => {
         if (!date) return "—";
@@ -1353,6 +1480,8 @@
         signedInUser = null;
         signedInRole = null;
         signedInSchoolId = null;
+        currentSchool = null;
+        cbeBands = normalizeRubric(defaultCbeBands);
         passwordRecoveryRequired = false;
         authElements.shell.hidden = true;
         authElements.view.hidden = false;
@@ -1366,6 +1495,9 @@
         document.querySelector("#admin-panel").hidden = true;
         document.querySelector("#platform-token-panel").hidden = true;
         document.querySelector("#school-name-form").hidden = true;
+        document.querySelector("#school-location-form").reset();
+        document.querySelector("#school-location-form").querySelectorAll("input, button").forEach((input) => { input.disabled = false; });
+        renderRubricSettings(false);
         authElements.password.value = "";
         authElements.signupForm.reset();
         authElements.schoolSetupForm.reset();
@@ -1451,7 +1583,7 @@
         }
         const { data: school, error: schoolError } = await supabaseClient
           .from("schools")
-          .select("name")
+          .select("id, name, postal_address, locality, ward, sub_county, county, grading_rubric")
           .eq("id", profile.school_id)
           .maybeSingle();
         if (schoolError || !school) {
@@ -1463,6 +1595,9 @@
           setAuthMessage(signOutError ? `${message} Sign-out also failed: ${signOutError.message}` : message, "error");
           return;
         }
+        currentSchool = school;
+        cbeBands = normalizeRubric(school.grading_rubric);
+        renderSchoolProfile();
         authElements.view.hidden = true;
         authElements.form.hidden = false;
         authElements.signupForm.hidden = true;
@@ -1482,6 +1617,10 @@
         document.querySelector("#platform-token-panel").hidden = profile.role !== "owner";
         document.querySelector("#school-name-form").hidden = !isSchoolAdmin;
         document.querySelector("#school-name-input").value = school.name;
+        document.querySelector("#school-location-form").querySelectorAll("input, button").forEach((input) => {
+          input.disabled = !isSchoolAdmin;
+        });
+        renderRubricSettings(isSchoolAdmin);
         if (isSchoolAdmin) await loadAdminUsers();
         try {
           await loadWorkspaceData();
@@ -1915,10 +2054,81 @@
             .select("name")
             .single();
           if (error) throw new Error(`Could not update the school name: ${error.message}`);
+          currentSchool = { ...currentSchool, name: data.name };
           document.querySelector("#profile-school-name").textContent = data.name;
           showToast("School name updated.");
         } catch (error) {
           showToast(error instanceof Error ? error.message : "Could not update the school name.", true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#school-location-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!["owner", "admin"].includes(signedInRole)) {
+          showToast("Only school administrators can update school details.", true);
+          return;
+        }
+        const button = document.querySelector("#school-location-submit");
+        const details = {
+          postal_address: document.querySelector("#school-postal-address").value.trim(),
+          locality: document.querySelector("#school-locality").value.trim(),
+          ward: document.querySelector("#school-ward").value.trim(),
+          sub_county: document.querySelector("#school-sub-county").value.trim(),
+          county: document.querySelector("#school-county").value.trim()
+        };
+        button.disabled = true;
+        try {
+          const { error } = await supabaseClient
+            .from("schools")
+            .update(details)
+            .eq("id", signedInSchoolId)
+            .select("id")
+            .single();
+          if (error) throw new Error(`Could not save school location: ${error.message}`);
+          currentSchool = { ...currentSchool, ...details };
+          showToast("School location saved.");
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Could not save school location.", true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#rubric-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!["owner", "admin"].includes(signedInRole)) {
+          showToast("Only school administrators can edit the performance rubric.", true);
+          return;
+        }
+        let updatedRubric;
+        try {
+          updatedRubric = readRubricSettings();
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Check the eight rubric levels and try again.", true);
+          return;
+        }
+        const button = document.querySelector("#rubric-submit");
+        button.disabled = true;
+        try {
+          const storedRubric = updatedRubric.map(({ code, descriptor, minimum, points, teacherComment }) => ({
+            code, descriptor, minimum, points, teacherComment
+          }));
+          const { error } = await supabaseClient
+            .from("schools")
+            .update({ grading_rubric: storedRubric })
+            .eq("id", signedInSchoolId)
+            .select("id")
+            .single();
+          if (error) throw new Error(`Could not save the performance rubric: ${error.message}`);
+          cbeBands = updatedRubric;
+          currentSchool = { ...currentSchool, grading_rubric: storedRubric };
+          renderRubricSettings(true);
+          render();
+          showToast("Eight-level performance rubric saved.");
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Could not save the performance rubric.", true);
         } finally {
           button.disabled = false;
         }
@@ -2007,6 +2217,58 @@
           .filter((stream) => stream.class_id === classId)
           .map((stream) => ({ value: stream.id, label: stream.name }));
         populateSelect(document.querySelector("#new-student-stream"), options, "Choose a stream");
+      }
+
+      function renderSchoolProfile() {
+        const school = currentSchool || {};
+        const values = {
+          "school-postal-address": school.postal_address || "",
+          "school-locality": school.locality || "",
+          "school-ward": school.ward || "",
+          "school-sub-county": school.sub_county || "",
+          "school-county": school.county || ""
+        };
+        Object.entries(values).forEach(([id, value]) => { document.querySelector(`#${id}`).value = value; });
+      }
+
+      function renderRubricSettings(canEdit = false) {
+        const rows = document.querySelector("#rubric-settings-rows");
+        rows.innerHTML = `<div class="rubric-level-list">${cbeBands.map((band) => `
+          <div class="rubric-level-row">
+            <div class="rubric-level-code">${escapeHtml(band.code)}</div>
+            <div class="auth-field">
+              <label for="rubric-${band.code}-descriptor">Descriptor</label>
+              <input id="rubric-${band.code}-descriptor" data-rubric-code="${band.code}" data-rubric-field="descriptor" maxlength="80" required value="${escapeHtml(band.descriptor)}">
+            </div>
+            <div class="auth-field">
+              <label for="rubric-${band.code}-minimum">From %</label>
+              <input id="rubric-${band.code}-minimum" data-rubric-code="${band.code}" data-rubric-field="minimum" type="number" min="0" max="100" step="1" required value="${band.minimum}">
+            </div>
+            <div class="auth-field">
+              <label for="rubric-${band.code}-points">Points</label>
+              <input id="rubric-${band.code}-points" data-rubric-code="${band.code}" data-rubric-field="points" type="number" min="1" max="8" step="1" required value="${band.points}">
+            </div>
+            <div class="auth-field">
+              <label for="rubric-${band.code}-comment">Automatic class-teacher comment</label>
+              <textarea id="rubric-${band.code}-comment" data-rubric-code="${band.code}" data-rubric-field="teacherComment" maxlength="500" required>${escapeHtml(band.teacherComment)}</textarea>
+            </div>
+          </div>`).join("")}</div>`;
+        rows.querySelectorAll("input, textarea").forEach((input) => { input.disabled = !canEdit; });
+        document.querySelector("#rubric-submit").disabled = !canEdit;
+      }
+
+      function readRubricSettings() {
+        const values = cbeBands.map((band) => {
+          const value = (field) => document.querySelector(`[data-rubric-code="${band.code}"][data-rubric-field="${field}"]`).value;
+          return {
+            code: band.code,
+            descriptor: value("descriptor").trim(),
+            minimum: Number(value("minimum")),
+            points: Number(value("points")),
+            teacherComment: value("teacherComment").trim()
+          };
+        });
+        return normalizeRubric(values);
       }
 
       function renderSettings() {
@@ -2353,7 +2615,7 @@
         const totalMaxScore = rows.reduce((sum, row) => sum + row.maxScore, 0);
         const average = totalMaxScore ? totalScore / totalMaxScore * 100 : 0;
         const attainment = rows.length
-          ? rows.filter((row) => ["EE", "ME"].includes(cbeLevel(percentage(row)).code)).length / rows.length * 100
+          ? rows.filter((row) => ["EE", "ME"].includes(cbeLevel(percentage(row)).code.slice(0, 2))).length / rows.length * 100
           : 0;
         const subjects = new Map();
         rows.forEach((row) => {
@@ -2459,7 +2721,7 @@
           list.append(item);
         });
         document.querySelector("#distribution-note").textContent = rows.length
-          ? `Based on ${rows.length} ${rows.length === 1 ? "result" : "results"}. These percentage bands are a reporting aid, not a national CBE conversion; confirm cutoffs with your school’s assessment rubric.`
+          ? `Based on ${rows.length} ${rows.length === 1 ? "result" : "results"}. The school’s eight-level CBC rubric is shown above.`
           : "No results match these filters.";
       }
 
@@ -2551,7 +2813,7 @@
               <td>${escapeHtml(row.assessment)}</td>
               <td><div class="score-cell"><span>${row.score} / ${row.maxScore}</span><span class="score-track" aria-hidden="true"><span class="${score < 70 ? "low" : ""}" style="width:${Math.min(score, 100)}%"></span></span></div></td>
               <td><span class="grade-pill ${level.gradeClass}" title="${level.descriptor}">${level.code}</span></td>
-              <td><span class="status ${level.code.toLowerCase()}">${level.descriptor}</span></td>
+              <td><span class="status ${level.gradeClass}">${level.descriptor}</span></td>
               <td>${escapeHtml(formatDate(row.date))}</td>`;
             elements.body.append(tr);
           });
@@ -2648,10 +2910,7 @@
             <td>${stats.resultCount}</td>
             <td>${stats.resultCount ? `${formatMark(stats.totalScore)} / ${formatMark(stats.totalMaxScore)}` : "—"}</td>
             <td>${stats.average === null ? "—" : `${stats.average.toFixed(1)}%`}</td>
-            <td>${stats.bandCounts.EE}</td>
-            <td>${stats.bandCounts.ME}</td>
-            <td>${stats.bandCounts.AE}</td>
-            <td>${stats.bandCounts.BE}</td>
+            ${cbeBands.map((band) => `<td>${stats.bandCounts[band.code]}</td>`).join("")}
             <td><div class="report-actions">
               <button type="button" class="button" data-report-action="download" data-report-kind="${kind}" data-report-id="${escapeHtml(group.id)}" aria-label="Download ${escapeHtml(groupLabel)} report">Download</button>
               <button type="button" class="button" data-report-action="print" data-report-kind="${kind}" data-report-id="${escapeHtml(group.id)}" aria-label="Print ${escapeHtml(groupLabel)} report">Print</button>
@@ -2661,8 +2920,8 @@
       }
 
       function renderReports() {
-        renderReportTable("class", document.querySelector("#class-report-body"), 11);
-        renderReportTable("stream", document.querySelector("#stream-report-body"), 12);
+        renderReportTable("class", document.querySelector("#class-report-body"), 15);
+        renderReportTable("stream", document.querySelector("#stream-report-body"), 16);
       }
 
       function findReportGroup(kind, id) {
@@ -2764,7 +3023,7 @@
             totalScore: learner.totalScore,
             totalMaxScore: learner.totalMaxScore,
             average: learner.average.toFixed(1),
-            bandCounts: { EE: "", ME: "", AE: "", BE: "" },
+            bandCounts: Object.fromEntries(cbeBands.map((band) => [band.code, ""])),
             cbeLevel: cbeLevel(learner.average).code,
             subjectMarks: Object.fromEntries(subjects.map((subject) => {
               const marks = marksBySubject?.get(subject);
@@ -2791,10 +3050,10 @@
           { label: "TotalMarks", value: (row) => row.totalScore },
           { label: "PossibleMarks", value: (row) => row.totalMaxScore },
           { label: "AveragePercent", value: (row) => row.average },
-          { label: "EE", value: (row) => row.bandCounts.EE },
-          { label: "ME", value: (row) => row.bandCounts.ME },
-          { label: "AE", value: (row) => row.bandCounts.AE },
-          { label: "BE", value: (row) => row.bandCounts.BE },
+          ...cbeBands.map((band) => ({
+            label: band.code,
+            value: (row) => row.bandCounts[band.code]
+          })),
           { label: "LearnerCBELevel", value: (row) => row.cbeLevel },
           ...subjects.map((subject) => ({
             label: subject,
@@ -2900,7 +3159,8 @@
         printReport.classList.remove("report-card-print");
         printReport.classList.add("class-analysis-print");
         printReport.innerHTML = `
-          <h1>KIRIENE DAY SCHOOL</h1>
+          <h1>${escapeHtml(currentSchool?.name || "School")}</h1>
+          <p>${escapeHtml([currentSchool?.postal_address, currentSchool?.locality, currentSchool?.ward, currentSchool?.sub_county, currentSchool?.county].filter(Boolean).join(" · "))}</p>
           <p>${escapeHtml(headingAssessment)} · ${escapeHtml(group.sectionName)} · ${escapeHtml(classLabel)} · Printed ${escapeHtml(new Date().toLocaleDateString())}</p>
           ${summaryHtml}
           <h2>LEARNERS POSITION</h2>
@@ -2915,7 +3175,7 @@
             <thead><tr><th>Subject</th><th>Mean</th><th>Level</th><th>Position</th></tr></thead>
             <tbody>${subjectTableRows}</tbody>
           </table>
-          <p>CBE level labels use the current app bands: EE 85%+, ME 70–84%, AE 50–69%, and BE below 50%.</p>`;
+          <p>CBC grade key: ${escapeHtml(cbeBands.map((band) => `${band.code} ${band.range} (${band.points} pts)`).join(" · "))}.</p>`;
         displayPrintReport();
       }
 
@@ -2969,85 +3229,143 @@
           subjectTotals.set(row.subject, subjectLearners);
         });
 
-        const subjectRows = [...subjectTotals.entries()]
+        const subjectPerformance = [...subjectTotals.entries()]
           .sort(([subjectA], [subjectB]) => subjectA.localeCompare(subjectB))
           .map(([subject, subjectLearners]) => {
             const total = subjectLearners.get(studentId);
-            if (!total) return "";
+            if (!total) return null;
             const subjectAverage = total.maxScore ? total.score / total.maxScore * 100 : 0;
+            const classTotal = [...subjectLearners.values()].reduce((sum, marks) => ({
+              score: sum.score + marks.score,
+              maxScore: sum.maxScore + marks.maxScore
+            }), { score: 0, maxScore: 0 });
+            const classAverage = classTotal.maxScore ? classTotal.score / classTotal.maxScore * 100 : 0;
             const subjectRank = 1 + [...subjectLearners.values()]
               .filter((marks) => total.maxScore && marks.maxScore && marks.score / marks.maxScore * 100 > subjectAverage)
               .length;
-            const grade = cbeLevel(subjectAverage);
-            return `<tr>
-              <td>${escapeHtml(subject)}</td>
-              <td>${formatMark(total.score)} / ${formatMark(total.maxScore)}</td>
-              <td>${escapeHtml(grade.code)}</td>
-              <td>${subjectAverage.toFixed(1)}%</td>
-              <td>${subjectRank} / ${subjectLearners.size}</td>
-              <td></td>
-              <td></td>
-            </tr>`;
+            return { subject, score: total.score, maxScore: total.maxScore, average: subjectAverage, classAverage, subjectRank, classSize: subjectLearners.size, grade: cbeLevel(subjectAverage) };
           })
           .filter(Boolean);
+        const totalPoints = subjectPerformance.reduce((sum, item) => sum + item.grade.points, 0);
+        const averagePoints = subjectPerformance.length ? totalPoints / subjectPerformance.length : 0;
+        const bestSubject = [...subjectPerformance].sort((a, b) => b.average - a.average)[0];
+        const needsWorkSubject = [...subjectPerformance].sort((a, b) => a.average - b.average)[0];
+        const subjectRemarks = {
+          EE1: (subject) => `Exceptional work in ${subject}. Keep it up!`,
+          EE2: (subject) => `Excellent work in ${subject}. Continue to aim high.`,
+          ME1: (subject) => `Very good progress in ${subject}. Build on this achievement.`,
+          ME2: (subject) => `Steady effort in ${subject}. More practice will strengthen mastery.`,
+          AE1: (subject) => `Developing well in ${subject}. Focused practice will help improve.`,
+          AE2: (subject) => `Keep practising ${subject} and ask for help when needed.`,
+          BE1: (subject) => `Needs additional support in ${subject}; regular guided practice is recommended.`,
+          BE2: (subject) => `Needs focused support in ${subject}; practise the foundational skills with the teacher.`
+        };
+        const subjectRows = subjectPerformance.map((item) => {
+          const difference = item.average - item.classAverage;
+          const vsClass = Math.abs(difference) < 0.05 ? "— 0.0" : `${difference > 0 ? "▲ +" : "▼ "}${difference.toFixed(1)}`;
+          return `<tr>
+            <td>${escapeHtml(item.subject)}</td>
+            <td>${formatMark(item.score)} / ${formatMark(item.maxScore)}</td>
+            <td>${escapeHtml(item.grade.code)}</td>
+            <td>${item.grade.points}</td>
+            <td>${item.classAverage.toFixed(1)}%</td>
+            <td>${vsClass}</td>
+            <td>${escapeHtml(subjectRemarks[item.grade.code](item.subject))}</td>
+          </tr>`;
+        }).join("");
         const enrolled = state.students.filter((item) => item.class_id === student.class_id).length;
         const reportingPeriod = document.querySelector("#term-select").selectedOptions[0]?.textContent || "—";
+        const assessments = new Map();
+        results.forEach((row) => {
+          const current = assessments.get(row.assessment) || { name: row.assessment, score: 0, maxScore: 0, date: row.date };
+          current.score += row.score;
+          current.maxScore += row.maxScore;
+          if (row.date && (!current.date || row.date < current.date)) current.date = row.date;
+          assessments.set(row.assessment, current);
+        });
+        const progress = [...assessments.values()]
+          .sort((a, b) => (a.date || "").localeCompare(b.date || "") || a.name.localeCompare(b.name));
+        let previousAssessmentAverage = null;
+        const progressRows = progress.map((assessment) => {
+          const assessmentAverage = assessment.maxScore ? assessment.score / assessment.maxScore * 100 : 0;
+          const level = cbeLevel(assessmentAverage);
+          const change = previousAssessmentAverage === null
+            ? "—"
+            : `${assessmentAverage >= previousAssessmentAverage ? "▲ +" : "▼ "}${(assessmentAverage - previousAssessmentAverage).toFixed(1)}`;
+          previousAssessmentAverage = assessmentAverage;
+          return `<tr><td>${escapeHtml(assessment.name)}</td><td>${assessmentAverage.toFixed(1)}%</td><td>${escapeHtml(level.code)}</td><td>${change}</td></tr>`;
+        }).join("");
+        const schoolLocation = [
+          currentSchool?.postal_address,
+          currentSchool?.locality,
+          currentSchool?.ward ? `Ward: ${currentSchool.ward}` : "",
+          currentSchool?.sub_county ? `${currentSchool.sub_county} Sub-county` : "",
+          currentSchool?.county ? `${currentSchool.county} County` : ""
+        ].filter(Boolean);
+        const rubricKey = cbeBands.map((band) => `${band.code} ${band.range} (${band.points} pts)`).join(" · ");
         const printReport = document.querySelector("#print-report");
         printReport.classList.add("report-card-print");
         printReport.innerHTML = `
           <article class="report-card">
             <header class="report-card-header">
-              <div>
-                <h1>Student report card</h1>
-                <p>${escapeHtml(sectionName(classroom?.section_id))} · ${escapeHtml(classroom?.name || "Class")} · ${escapeHtml(stream?.name || "Stream")}</p>
-              </div>
-              <div class="report-card-term">Selected term: ${escapeHtml(reportingPeriod)}</div>
+              <h1>${escapeHtml(currentSchool?.name || "School")}</h1>
+              ${schoolLocation.map((detail) => `<p>${escapeHtml(detail)}</p>`).join("")}
             </header>
+            <div class="report-card-title">
+              <strong>STUDENT ACADEMIC REPORT FORM</strong>
+              <span>${escapeHtml(reportingPeriod)} · Date issued: ${escapeHtml(new Date().toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" }))}</span>
+            </div>
             <div class="report-card-details">
               <div class="report-card-field"><strong>Name:</strong>${escapeHtml(student.full_name)}</div>
-              <div class="report-card-field"><strong>School section:</strong>${escapeHtml(sectionName(classroom?.section_id))}</div>
-              <div class="report-card-field"><strong>Form:</strong>${escapeHtml(classroom?.name || "—")}</div>
+              <div class="report-card-field"><strong>Grade:</strong>${escapeHtml(classroom?.name || "—")}</div>
+              <div class="report-card-field"><strong>Section:</strong>${escapeHtml(sectionName(classroom?.section_id))}</div>
               <div class="report-card-field"><strong>Stream:</strong>${escapeHtml(stream?.name || "—")}</div>
               <div class="report-card-field"><strong>Admission no:</strong>${escapeHtml(student.admission_number || "—")}</div>
-              <div class="report-card-field"><strong>Date:</strong>${escapeHtml(new Date().toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" }))}</div>
-              <div class="report-card-field"><strong>KCPE marks:</strong>&nbsp;</div>
+              <div class="report-card-field"><strong>Position:</strong>${classPosition ? `${classPosition} / ${classLearners.length}` : "—"}</div>
               <div class="report-card-field"><strong>Enrolled in class:</strong>${enrolled}</div>
-              <div class="report-card-field"><strong>Results recorded:</strong>${results.length}</div>
+              <div class="report-card-field"><strong>Assessments recorded:</strong>${results.length}</div>
             </div>
             <h2 class="report-card-section-title">Overall performance</h2>
             <div class="report-card-summary">
               <div class="report-card-field"><strong>Total marks:</strong>${formatMark(totalScore)} / ${formatMark(totalMaxScore)}</div>
               <div class="report-card-field"><strong>Mean score:</strong>${average.toFixed(1)}%</div>
-              <div class="report-card-field"><strong>Grade:</strong>${escapeHtml(overallGrade.code)} — ${escapeHtml(overallGrade.descriptor)}</div>
-              <div class="report-card-field"><strong>Position:</strong>${classPosition ? `${classPosition} / ${classLearners.length} assessed` : "—"}</div>
-              <div class="report-card-field"><strong>Subjects done / graded:</strong>${subjectRows.length}</div>
-              <div class="report-card-field"><strong>Total points:</strong>&nbsp;</div>
-              <div class="report-card-field"><strong>Average points:</strong>&nbsp;</div>
+              <div class="report-card-field"><strong>CBC grade:</strong>${escapeHtml(overallGrade.code)} — ${escapeHtml(overallGrade.descriptor)}</div>
+              <div class="report-card-field"><strong>Total points:</strong>${totalPoints}</div>
+              <div class="report-card-field"><strong>Best subject:</strong>${bestSubject ? `${escapeHtml(bestSubject.subject)} · ${bestSubject.average.toFixed(1)}%` : "—"}</div>
+              <div class="report-card-field"><strong>Needs work:</strong>${needsWorkSubject ? `${escapeHtml(needsWorkSubject.subject)} · ${needsWorkSubject.average.toFixed(1)}%` : "—"}</div>
+              <div class="report-card-field"><strong>Average points:</strong>${averagePoints.toFixed(1)}</div>
             </div>
             <h2 class="report-card-section-title">Subject results</h2>
             <table class="report-card-table">
               <thead><tr>
                 <th scope="col">Subject</th>
-                <th scope="col">Marks earned / possible</th>
+                <th scope="col">Score</th>
                 <th scope="col">Grade</th>
-                <th scope="col">Mean</th>
-                <th scope="col">Position</th>
-                <th scope="col">Teacher's remarks</th>
-                <th scope="col">Initial</th>
+                <th scope="col">Points</th>
+                <th scope="col">Class avg</th>
+                <th scope="col">Vs class</th>
+                <th scope="col">Teacher remark</th>
               </tr></thead>
-              <tbody>${subjectRows.join("") || '<tr><td colspan="7">No subject results recorded.</td></tr>'}</tbody>
+              <tbody>${subjectRows || '<tr><td colspan="7">No subject results recorded.</td></tr>'}</tbody>
+              <tfoot><tr><td>TOTAL / MEAN</td><td>${formatMark(totalScore)} / ${formatMark(totalMaxScore)}</td><td>${escapeHtml(overallGrade.code)}</td><td>${totalPoints}</td><td colspan="3">Mean score: ${average.toFixed(1)}% · ${subjectPerformance.length} subjects</td></tr></tfoot>
             </table>
-            <p class="report-card-note">Ranks compare learners with recorded results in this class. Results include all recorded assessments; they are not separated by term. KCPE marks, points conversion and remarks are not stored and can be completed by the school.</p>
+            <h2 class="report-card-section-title">Progress across examinations</h2>
+            <table class="report-card-table report-card-progress">
+              <thead><tr><th>Examination</th><th>Mean score</th><th>Grade</th><th>Change</th></tr></thead>
+              <tbody>${progressRows}</tbody>
+            </table>
             <div class="report-card-comments">
-              <h2 class="report-card-section-title">General remarks</h2>
-              <p>&nbsp;</p>
-              <p>&nbsp;</p>
+              <h2 class="report-card-section-title">Class teacher's comment</h2>
+              <p class="report-card-comment-text">${escapeHtml(`${student.full_name.split(/\s+/)[0]} ${overallGrade.teacherComment}`)}</p>
+              <h2 class="report-card-section-title">Principal's comment</h2>
+              <p class="report-card-comment-text"></p>
             </div>
             <div class="report-card-signatures">
               <div>Class teacher signature / date</div>
               <div>Principal / deputy principal signature / date</div>
               <div>Parent / guardian signature / date</div>
             </div>
+            <p class="report-card-note">CBC grade key: ${escapeHtml(rubricKey)}. The report includes all assessments recorded for this learner.</p>
           </article>`;
         displayPrintReport();
       }

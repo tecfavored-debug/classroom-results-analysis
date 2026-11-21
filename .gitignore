@@ -15,6 +15,7 @@ supabase/migrations/*
 !supabase/migrations/20261119121500_make_assessments_school_wide.sql
 !supabase/migrations/20261119124000_add_school_sections.sql
 !supabase/migrations/20261119170000_add_school_tenants_and_setup_tokens.sql
+!supabase/migrations/20261121150000_add_school_location_and_rubric.sql
 !supabase/functions/
 !supabase/functions/admin-users/
 !supabase/functions/admin-users/index.ts
