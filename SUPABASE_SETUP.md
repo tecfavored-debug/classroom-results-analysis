@@ -9,7 +9,7 @@ These upgrade steps assume the current Supabase project already has the app's pr
 1. Enable the Email provider and email sign-ups. New sign-ups have a `pending` profile and cannot read or write school data until they redeem a valid setup token.
 2. Keep email confirmation enabled and configure SMTP so school administrators can verify their email and receive staff invitations.
 3. Set the project **Site URL** and allowed redirect URLs to the app's HTTPS origin. For local testing, serve the folder over HTTP and allow that localhost URL; do not use `file://`.
-4. Set the Supabase password minimum to at least 12 characters to match the app's password form.
+4. Set the Supabase password minimum to 6 characters. The app accepts passwords from 6 to 8 characters; passwords shorter than 8 are less resistant to guessing.
 5. Apply migrations with `npx supabase db push --remote`. Migration `20261119170000_add_school_tenants_and_setup_tokens.sql` preserves existing school records in an `Existing School` workspace.
 
 ## 2. Bootstrap the platform owner
@@ -53,7 +53,7 @@ The Edge Function uses Supabase's managed publishable/secret key environment var
 1. Sign in as the platform owner and open **Account management**.
 2. Select **Create setup token** and copy the token. It is shown only once and expires in seven days.
 3. Send it securely to the first administrator for that school.
-4. That person creates an app account, confirms their email, signs in, enters the token and school name, and becomes that school's administrator.
+4. That person creates an app account and enters the token and school name on the same form. If email confirmation is required, they confirm and sign in before creating the school; the details are temporarily kept in that browser tab and prefilled for completion.
 5. The school administrator can invite teachers and other administrators from that school's **Account management** panel. These invitations do not give access to any other school.
 
 Each account can belong to one school. A person already assigned to another school needs a separate account to work in a second school.
@@ -71,7 +71,7 @@ window.APP_CONFIG = {
 
 Serve `index.html` and `supabase-config.js` from the allowed site URL. The public frontend contains only the Supabase URL and public anon/publishable key, not service-role credentials.
 
-Invited staff can set their password from **Set / change password** after following the invitation link. The **Forgot password?** link sends a reset email.
+Invited staff can set a 6–8 character password from **Set / change password** after following the invitation link. The **Forgot password?** link sends a reset email; reset passwords must also be 6–8 characters.
 
 ## School data
 

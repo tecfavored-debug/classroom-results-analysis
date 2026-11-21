@@ -592,14 +592,22 @@
         <button type="button" class="text-button" id="create-account-button">Create a school account</button>
       </div>
       <form id="signup-form" hidden>
-        <p class="auth-description">Create an account, then sign in and redeem the one-time setup token you received.</p>
+        <p class="auth-description">Create your account and enter the school name and one-time setup token you received.</p>
         <div class="auth-field">
           <label for="signup-email">Email address</label>
           <input id="signup-email" type="email" autocomplete="email" required placeholder="you@school.ac.ke">
         </div>
         <div class="auth-field">
           <label for="signup-password">Password</label>
-          <input id="signup-password" type="password" autocomplete="new-password" minlength="12" required placeholder="At least 12 characters">
+          <input id="signup-password" type="password" autocomplete="new-password" minlength="6" maxlength="8" required placeholder="6 to 8 characters">
+        </div>
+        <div class="auth-field">
+          <label for="signup-school-name">School name</label>
+          <input id="signup-school-name" maxlength="160" required placeholder="Your school’s name">
+        </div>
+        <div class="auth-field">
+          <label for="signup-setup-token">One-time setup token</label>
+          <input id="signup-setup-token" minlength="64" maxlength="64" pattern="[0-9a-fA-F]{64}" required autocomplete="off" spellcheck="false" placeholder="Paste the 64-character token">
         </div>
         <button type="submit" class="button primary auth-submit" id="signup-submit">Create account</button>
         <button type="button" class="text-button" id="cancel-signup">Back to sign in</button>
@@ -613,7 +621,7 @@
         </div>
         <div class="auth-field">
           <label for="setup-token">One-time setup token</label>
-          <input id="setup-token" required autocomplete="off" spellcheck="false">
+          <input id="setup-token" minlength="64" maxlength="64" pattern="[0-9a-fA-F]{64}" required autocomplete="off" spellcheck="false" placeholder="Paste the 64-character token">
         </div>
         <button type="submit" class="button primary auth-submit" id="setup-school-submit">Create school</button>
         <button type="button" class="text-button" id="setup-sign-out">Sign out</button>
@@ -625,15 +633,15 @@
   <div class="password-overlay" id="password-overlay" hidden>
     <section class="password-card" role="dialog" aria-modal="true" aria-labelledby="password-title">
       <h2 id="password-title">Set a new password</h2>
-      <p id="password-description">Choose a strong password for your account. Use at least 12 characters.</p>
+      <p id="password-description">Choose a password between 6 and 8 characters long.</p>
       <form id="password-form">
         <div class="auth-field">
           <label for="new-password">New password</label>
-          <input id="new-password" type="password" autocomplete="new-password" minlength="12" required>
+          <input id="new-password" type="password" autocomplete="new-password" minlength="6" maxlength="8" required>
         </div>
         <div class="auth-field">
           <label for="confirm-password">Confirm new password</label>
-          <input id="confirm-password" type="password" autocomplete="new-password" minlength="12" required>
+          <input id="confirm-password" type="password" autocomplete="new-password" minlength="6" maxlength="8" required>
         </div>
         <p class="password-message" id="password-message" role="status" aria-live="polite"></p>
         <div class="password-actions">
@@ -1287,6 +1295,8 @@
         signupForm: document.querySelector("#signup-form"),
         signupEmail: document.querySelector("#signup-email"),
         signupPassword: document.querySelector("#signup-password"),
+        signupSchoolName: document.querySelector("#signup-school-name"),
+        signupSetupToken: document.querySelector("#signup-setup-token"),
         schoolSetupForm: document.querySelector("#school-setup-form"),
         message: document.querySelector("#auth-message"),
         usersBody: document.querySelector("#users-body")
@@ -1296,6 +1306,7 @@
       let signedInRole = null;
       let signedInSchoolId = null;
       let passwordRecoveryRequired = false;
+      const pendingSchoolSetupKey = "classroom-pending-school-setup";
 
       const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -1323,6 +1334,19 @@
       function setAuthMessage(message, kind = "") {
         authElements.message.textContent = message;
         authElements.message.className = `auth-message ${kind}`.trim();
+      }
+
+      function readPendingSchoolSetup(email) {
+        const saved = sessionStorage.getItem(pendingSchoolSetupKey);
+        if (!saved) return null;
+        const details = JSON.parse(saved);
+        if (!details || typeof details.email !== "string"
+          || details.email.toLocaleLowerCase() !== email.toLocaleLowerCase()
+          || typeof details.schoolName !== "string"
+          || typeof details.token !== "string") {
+          return null;
+        }
+        return details;
       }
 
       function showSignedOutView() {
@@ -1394,6 +1418,17 @@
         signedInRole = profile.role;
         signedInSchoolId = profile.school_id;
         if (profile.role === "pending" && !profile.school_id) {
+          let pendingSetup = null;
+          let restoreError = "";
+          try {
+            pendingSetup = readPendingSchoolSetup(session.user.email || "");
+          } catch (error) {
+            restoreError = error instanceof Error ? error.message : "The saved setup details could not be restored.";
+          }
+          if (pendingSetup) {
+            document.querySelector("#setup-school-name").value = pendingSetup.schoolName;
+            document.querySelector("#setup-token").value = pendingSetup.token;
+          }
           authElements.shell.hidden = true;
           authElements.view.hidden = false;
           authElements.form.hidden = true;
@@ -1401,7 +1436,11 @@
           authElements.schoolSetupForm.hidden = false;
           document.querySelector(".auth-links").hidden = true;
           document.querySelector("#admin-panel").hidden = true;
-          setAuthMessage("Your account is ready. Redeem your one-time setup token to create your school.", "success");
+          setAuthMessage(restoreError
+            ? `Enter your school name and setup token again. ${restoreError}`
+            : pendingSetup
+              ? "Your account is ready. Check the school name and token, then create your school."
+              : "Your account is ready. Enter your school name and one-time setup token to create your school.", restoreError ? "error" : "success");
           return;
         }
         if (!profile.school_id || profile.role === "pending") {
@@ -1651,25 +1690,56 @@
         event.preventDefault();
         if (!supabaseClient) return;
         const button = document.querySelector("#signup-submit");
+        const email = authElements.signupEmail.value.trim();
+        const password = authElements.signupPassword.value;
+        const schoolName = authElements.signupSchoolName.value.trim();
+        const token = authElements.signupSetupToken.value.trim();
+        if (password.length < 6 || password.length > 8) {
+          setAuthMessage("Password must be 6 to 8 characters long.", "error");
+          return;
+        }
+        if (!schoolName || !/^[0-9a-f]{64}$/i.test(token)) {
+          setAuthMessage("Enter your school name and the complete 64-character setup token.", "error");
+          return;
+        }
         button.disabled = true;
         setAuthMessage("Creating your account…");
         try {
           const { data, error } = await supabaseClient.auth.signUp({
-            email: authElements.signupEmail.value.trim(),
-            password: authElements.signupPassword.value
+            email,
+            password
           });
           if (error) throw error;
-          authElements.email.value = authElements.signupEmail.value.trim();
+          authElements.email.value = email;
           authElements.password.value = "";
           authElements.signupForm.hidden = true;
-          authElements.form.hidden = !data.session;
           document.querySelector(".auth-links").hidden = false;
           document.querySelector("#create-account-button").hidden = true;
           if (data.session) {
-            setAuthMessage("Account created. Enter your one-time setup token and school name.", "success");
+            const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+            if (sessionError) throw sessionError;
+            if (!sessionData.session) throw new Error("Your account was created, but the sign-in session is missing. Sign in to finish school setup.");
+            await applySession(sessionData.session);
+            document.querySelector("#setup-school-name").value = schoolName;
+            document.querySelector("#setup-token").value = token;
+            authElements.view.hidden = false;
+            authElements.form.hidden = true;
+            authElements.schoolSetupForm.hidden = false;
+            document.querySelector(".auth-links").hidden = true;
+            setAuthMessage("Account created. Review the school name and setup token, then create your school.", "success");
           } else {
+            let setupSaved = true;
+            try {
+              sessionStorage.setItem(pendingSchoolSetupKey, JSON.stringify({ email, schoolName, token }));
+            } catch {
+              setupSaved = false;
+            }
             authElements.form.hidden = false;
-            setAuthMessage("Account created. Check your email to confirm it, then sign in and redeem your school setup token.", "success");
+            authElements.signupForm.reset();
+            setAuthMessage(setupSaved
+              ? "Account created. Confirm your email, then sign in; your school name and token will be ready on this tab."
+              : "Account created. Confirm your email and sign in, then enter your school name and setup token again.",
+            setupSaved ? "success" : "error");
           }
         } catch (error) {
           setAuthMessage(error instanceof Error ? error.message : "Could not create your account.", "error");
@@ -1689,6 +1759,11 @@
             token: document.querySelector("#setup-token").value.trim(),
             schoolName: document.querySelector("#setup-school-name").value.trim()
           });
+          try {
+            sessionStorage.removeItem(pendingSchoolSetupKey);
+          } catch {
+            showToast("School created, but the saved setup details could not be cleared from this tab.", true);
+          }
           const { data, error } = await supabaseClient.auth.getSession();
           if (error) throw error;
           if (!data.session) throw new Error("Your session expired. Sign in again to finish setting up the school.");
@@ -1736,8 +1811,8 @@
       function openPasswordDialog(required = false) {
         passwordRecoveryRequired = required;
         document.querySelector("#password-description").textContent = required
-          ? "Choose a new password to complete your password reset. Use at least 12 characters."
-          : "Choose a strong password for your account. Use at least 12 characters.";
+          ? "Choose a password between 6 and 8 characters to complete your reset."
+          : "Choose a password between 6 and 8 characters.";
         document.querySelector("#cancel-password").hidden = required;
         document.querySelector("#password-message").textContent = "";
         document.querySelector("#password-form").reset();
@@ -1759,6 +1834,10 @@
         const confirmation = document.querySelector("#confirm-password").value;
         const message = document.querySelector("#password-message");
         const button = document.querySelector("#save-password");
+        if (password.length < 6 || password.length > 8) {
+          message.textContent = "Password must be 6 to 8 characters long.";
+          return;
+        }
         if (password !== confirmation) {
           message.textContent = "The passwords do not match.";
           return;
