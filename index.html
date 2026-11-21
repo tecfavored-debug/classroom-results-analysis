@@ -38,7 +38,8 @@
     button, input, select { font: inherit; }
     button { cursor: pointer; }
 
-    .app-shell[hidden], #auth-view[hidden], #admin-panel[hidden], #password-overlay[hidden] { display: none !important; }
+    .app-shell[hidden], #auth-view[hidden], #admin-panel[hidden], #password-overlay[hidden],
+    .auth-links[hidden], #signup-form[hidden], #school-setup-form[hidden], #school-name-form[hidden] { display: none !important; }
     .auth-page {
       display: grid;
       min-height: 100vh;
@@ -80,6 +81,7 @@
     .auth-message { min-height: 18px; margin: 13px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
     .auth-message.error { color: #b94f49; }
     .auth-message.success { color: #258d68; }
+    #school-token-value { display: block; overflow-wrap: anywhere; margin: 8px 0; }
     .password-overlay { position: fixed; inset: 0; z-index: 8; display: grid; place-items: center; padding: 20px; background: rgb(25 34 49 / 42%); }
     .password-card { width: min(100%, 410px); padding: 25px; border: 1px solid var(--line); border-radius: 13px; background: white; box-shadow: 0 18px 55px rgb(20 30 48 / 25%); }
     .password-card h2 { margin: 0; font-size: 18px; }
@@ -180,6 +182,7 @@
       border-top: 1px solid var(--line);
     }
     .profile-details { min-width: 0; }
+    .profile-details span { display: block; }
     .avatar {
       display: grid;
       width: 34px;
@@ -586,8 +589,35 @@
       </form>
       <div class="auth-links">
         <button type="button" class="text-button" id="reset-password">Forgot password?</button>
-        <span style="color:var(--muted);font-size:10px">Accounts are invite-only</span>
+        <button type="button" class="text-button" id="create-account-button">Create a school account</button>
       </div>
+      <form id="signup-form" hidden>
+        <p class="auth-description">Create an account, then sign in and redeem the one-time setup token you received.</p>
+        <div class="auth-field">
+          <label for="signup-email">Email address</label>
+          <input id="signup-email" type="email" autocomplete="email" required placeholder="you@school.ac.ke">
+        </div>
+        <div class="auth-field">
+          <label for="signup-password">Password</label>
+          <input id="signup-password" type="password" autocomplete="new-password" minlength="12" required placeholder="At least 12 characters">
+        </div>
+        <button type="submit" class="button primary auth-submit" id="signup-submit">Create account</button>
+        <button type="button" class="text-button" id="cancel-signup">Back to sign in</button>
+      </form>
+      <form id="school-setup-form" hidden>
+        <h2>Set up your school</h2>
+        <p class="auth-description">Enter your school name and the one-time setup token. You’ll become its administrator.</p>
+        <div class="auth-field">
+          <label for="setup-school-name">School name</label>
+          <input id="setup-school-name" maxlength="160" required placeholder="Your school’s name">
+        </div>
+        <div class="auth-field">
+          <label for="setup-token">One-time setup token</label>
+          <input id="setup-token" required autocomplete="off" spellcheck="false">
+        </div>
+        <button type="submit" class="button primary auth-submit" id="setup-school-submit">Create school</button>
+        <button type="button" class="text-button" id="setup-sign-out">Sign out</button>
+      </form>
       <p class="auth-message" id="auth-message" role="status" aria-live="polite"></p>
     </div>
   </section>
@@ -657,6 +687,7 @@
           <div class="profile-details">
             <strong id="profile-email">Signed in</strong>
             <span id="profile-role">Teacher account</span>
+            <span id="profile-school-name"></span>
             <button type="button" class="text-button" id="change-password">Set / change password</button>
           </div>
         </div>
@@ -722,6 +753,24 @@
             </div>
             <button type="submit" class="button primary" id="invite-submit">Send invitation</button>
           </form>
+          <form class="admin-form" id="school-name-form">
+            <div class="auth-field">
+              <label for="school-name-input">School name</label>
+              <input id="school-name-input" maxlength="160" required>
+            </div>
+            <button type="submit" class="button" id="school-name-submit">Save school name</button>
+          </form>
+          <section id="platform-token-panel" hidden style="padding: 0 19px 16px">
+            <h3>New school setup token</h3>
+            <p class="panel-description">Create a one-time token to give to the first administrator of another school. It expires after 7 days.</p>
+            <button type="button" class="button primary" id="create-school-token">Create setup token</button>
+            <div id="school-token-result" hidden>
+              <p>Copy and send this token now. It will only be shown once.</p>
+              <code id="school-token-value"></code>
+              <button type="button" class="button" id="copy-school-token">Copy token</button>
+              <p class="panel-description" id="school-token-expiry"></p>
+            </div>
+          </section>
           <div class="table-wrap admin-table-wrap">
             <table>
               <thead>
@@ -1235,12 +1284,17 @@
         password: document.querySelector("#login-password"),
         submit: document.querySelector("#auth-submit"),
         reset: document.querySelector("#reset-password"),
+        signupForm: document.querySelector("#signup-form"),
+        signupEmail: document.querySelector("#signup-email"),
+        signupPassword: document.querySelector("#signup-password"),
+        schoolSetupForm: document.querySelector("#school-setup-form"),
         message: document.querySelector("#auth-message"),
         usersBody: document.querySelector("#users-body")
       };
       let supabaseClient = null;
       let signedInUser = null;
       let signedInRole = null;
+      let signedInSchoolId = null;
       let passwordRecoveryRequired = false;
 
       const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
@@ -1274,12 +1328,24 @@
       function showSignedOutView() {
         signedInUser = null;
         signedInRole = null;
+        signedInSchoolId = null;
         passwordRecoveryRequired = false;
         authElements.shell.hidden = true;
         authElements.view.hidden = false;
+        authElements.form.hidden = false;
+        authElements.signupForm.hidden = true;
+        authElements.schoolSetupForm.hidden = true;
+        document.querySelector(".auth-links").hidden = false;
+        document.querySelector("#create-account-button").hidden = false;
+        document.querySelector("#profile-school-name").textContent = "";
         document.querySelector("#password-overlay").hidden = true;
         document.querySelector("#admin-panel").hidden = true;
+        document.querySelector("#platform-token-panel").hidden = true;
+        document.querySelector("#school-name-form").hidden = true;
         authElements.password.value = "";
+        authElements.signupForm.reset();
+        authElements.schoolSetupForm.reset();
+        setAuthMessage("");
         document.querySelector("#password-form").reset();
         state.results = [];
         state.classes = [];
@@ -1311,10 +1377,10 @@
         }
         const { data: profile, error } = await supabaseClient
           .from("profiles")
-          .select("role")
+          .select("role, school_id")
           .eq("id", session.user.id)
           .maybeSingle();
-        if (error || !profile || !["admin", "teacher"].includes(profile.role)) {
+        if (error || !profile || !["owner", "admin", "teacher", "pending"].includes(profile.role)) {
           const message = error
             ? `Could not load your account role: ${error.message}`
             : "Your account has no valid role. Ask an administrator to check your account.";
@@ -1326,16 +1392,58 @@
 
         signedInUser = session.user;
         signedInRole = profile.role;
+        signedInSchoolId = profile.school_id;
+        if (profile.role === "pending" && !profile.school_id) {
+          authElements.shell.hidden = true;
+          authElements.view.hidden = false;
+          authElements.form.hidden = true;
+          authElements.signupForm.hidden = true;
+          authElements.schoolSetupForm.hidden = false;
+          document.querySelector(".auth-links").hidden = true;
+          document.querySelector("#admin-panel").hidden = true;
+          setAuthMessage("Your account is ready. Redeem your one-time setup token to create your school.", "success");
+          return;
+        }
+        if (!profile.school_id || profile.role === "pending") {
+          const { error: signOutError } = await supabaseClient.auth.signOut();
+          showSignedOutView();
+          setAuthMessage(signOutError ? "Your school account is incomplete and sign-out failed." : "Your school account is incomplete. Ask the platform owner for help.", "error");
+          return;
+        }
+        const { data: school, error: schoolError } = await supabaseClient
+          .from("schools")
+          .select("name")
+          .eq("id", profile.school_id)
+          .maybeSingle();
+        if (schoolError || !school) {
+          const message = schoolError
+            ? `Could not load your school: ${schoolError.message}`
+            : "Your school workspace could not be found. Ask an administrator for help.";
+          const { error: signOutError } = await supabaseClient.auth.signOut();
+          showSignedOutView();
+          setAuthMessage(signOutError ? `${message} Sign-out also failed: ${signOutError.message}` : message, "error");
+          return;
+        }
         authElements.view.hidden = true;
+        authElements.form.hidden = false;
+        authElements.signupForm.hidden = true;
+        authElements.schoolSetupForm.hidden = true;
         authElements.shell.hidden = false;
         authElements.password.value = "";
         const email = session.user.email || "Signed in";
         const initials = email.split("@")[0].split(/[._-]+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
         document.querySelector("#profile-email").textContent = email;
-        document.querySelector("#profile-role").textContent = profile.role === "admin" ? "Administrator" : "Teacher account";
+        document.querySelector("#profile-role").textContent = profile.role === "owner"
+          ? "Platform owner"
+          : profile.role === "admin" ? "School administrator" : "Teacher account";
+        document.querySelector("#profile-school-name").textContent = school.name;
         document.querySelector("#profile-avatar").textContent = initials || "U";
-        document.querySelector("#admin-panel").hidden = profile.role !== "admin";
-        if (profile.role === "admin") await loadAdminUsers();
+        const isSchoolAdmin = profile.role === "owner" || profile.role === "admin";
+        document.querySelector("#admin-panel").hidden = !isSchoolAdmin;
+        document.querySelector("#platform-token-panel").hidden = profile.role !== "owner";
+        document.querySelector("#school-name-form").hidden = !isSchoolAdmin;
+        document.querySelector("#school-name-input").value = school.name;
+        if (isSchoolAdmin) await loadAdminUsers();
         try {
           await loadWorkspaceData();
         } catch (loadError) {
@@ -1434,7 +1542,7 @@
       }
 
       async function loadAdminUsers() {
-        if (signedInRole !== "admin") return;
+        if (!["owner", "admin"].includes(signedInRole)) return;
         authElements.usersBody.innerHTML = '<tr><td class="empty-row" colspan="4">Loading accounts…</td></tr>';
         try {
           const data = await adminRequest({ action: "list" });
@@ -1444,18 +1552,24 @@
             return;
           }
           authElements.usersBody.innerHTML = data.users.map((user) => {
-            if (!["admin", "teacher"].includes(user.role)) throw new Error("An account has an invalid role. Check its profile in Supabase.");
+            if (!["owner", "admin", "teacher"].includes(user.role)) throw new Error("An account has an invalid role. Check its profile in Supabase.");
             const isSelf = user.id === signedInUser.id;
+            const canEdit = !isSelf && user.role !== "owner";
+            const roleControl = user.role === "owner"
+              ? "Platform owner"
+              : `<select class="admin-role-select" data-role-for="${escapeHtml(user.id)}" aria-label="Role for ${escapeHtml(user.email || "account")}" ${isSelf ? "disabled" : ""}>
+                  <option value="teacher" ${user.role === "teacher" ? "selected" : ""}>Teacher</option>
+                  <option value="admin" ${user.role === "admin" ? "selected" : ""}>Admin</option>
+                </select>`;
             return `<tr>
               <td>${escapeHtml(user.email || "No email")}</td>
-              <td><select class="admin-role-select" data-role-for="${escapeHtml(user.id)}" aria-label="Role for ${escapeHtml(user.email || "account")}" ${isSelf ? "disabled" : ""}>
-                <option value="teacher" ${user.role === "teacher" ? "selected" : ""}>Teacher</option>
-                <option value="admin" ${user.role === "admin" ? "selected" : ""}>Admin</option>
-              </select></td>
+              <td>${roleControl}</td>
               <td>${escapeHtml(formatDate((user.createdAt || "").slice(0, 10)))}</td>
-              <td><div class="admin-actions">${isSelf
-                ? '<span class="panel-description">Current account</span>'
-                : `<button type="button" class="button" data-save-role="${escapeHtml(user.id)}">Save role</button>`}</div></td>
+              <td><div class="admin-actions">${user.role === "owner"
+                ? '<span class="panel-description">Platform owner</span>'
+                : !canEdit
+                  ? '<span class="panel-description">Current account</span>'
+                  : `<button type="button" class="button" data-save-role="${escapeHtml(user.id)}">Save role</button>`}</div></td>
             </tr>`;
           }).join("");
         } catch (error) {
@@ -1469,6 +1583,7 @@
         if (!config.supabaseUrl || !config.supabaseAnonKey || !window.supabase?.createClient) {
           authElements.submit.disabled = true;
           authElements.reset.disabled = true;
+          document.querySelector("#create-account-button").disabled = true;
           setAuthMessage("Authentication is not configured. Follow SUPABASE_SETUP.md, then add your project URL and public anon key to supabase-config.js.", "error");
           return;
         }
@@ -1513,6 +1628,83 @@
         } finally {
           authElements.submit.disabled = false;
         }
+      });
+
+      document.querySelector("#create-account-button").addEventListener("click", () => {
+        authElements.form.hidden = true;
+        authElements.signupForm.hidden = false;
+        document.querySelector(".auth-links").hidden = true;
+        authElements.signupEmail.focus();
+        setAuthMessage("");
+      });
+
+      document.querySelector("#cancel-signup").addEventListener("click", () => {
+        authElements.signupForm.hidden = true;
+        authElements.form.hidden = false;
+        document.querySelector(".auth-links").hidden = false;
+        document.querySelector("#create-account-button").hidden = false;
+        authElements.signupForm.reset();
+        setAuthMessage("");
+      });
+
+      authElements.signupForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!supabaseClient) return;
+        const button = document.querySelector("#signup-submit");
+        button.disabled = true;
+        setAuthMessage("Creating your account…");
+        try {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email: authElements.signupEmail.value.trim(),
+            password: authElements.signupPassword.value
+          });
+          if (error) throw error;
+          authElements.email.value = authElements.signupEmail.value.trim();
+          authElements.password.value = "";
+          authElements.signupForm.hidden = true;
+          authElements.form.hidden = !data.session;
+          document.querySelector(".auth-links").hidden = false;
+          document.querySelector("#create-account-button").hidden = true;
+          if (data.session) {
+            setAuthMessage("Account created. Enter your one-time setup token and school name.", "success");
+          } else {
+            authElements.form.hidden = false;
+            setAuthMessage("Account created. Check your email to confirm it, then sign in and redeem your school setup token.", "success");
+          }
+        } catch (error) {
+          setAuthMessage(error instanceof Error ? error.message : "Could not create your account.", "error");
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      authElements.schoolSetupForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const button = document.querySelector("#setup-school-submit");
+        button.disabled = true;
+        setAuthMessage("Creating your school…");
+        try {
+          await adminRequest({
+            action: "redeem-school-token",
+            token: document.querySelector("#setup-token").value.trim(),
+            schoolName: document.querySelector("#setup-school-name").value.trim()
+          });
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (error) throw error;
+          if (!data.session) throw new Error("Your session expired. Sign in again to finish setting up the school.");
+          await applySession(data.session);
+          showToast("Your school workspace is ready.");
+        } catch (error) {
+          setAuthMessage(error instanceof Error ? error.message : "Could not create your school.", "error");
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#setup-sign-out").addEventListener("click", async () => {
+        if (!supabaseClient) return;
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) setAuthMessage(`Could not sign out: ${error.message}`, "error");
       });
 
       authElements.reset.addEventListener("click", async () => {
@@ -1626,6 +1818,60 @@
         }
       });
       document.querySelector("#refresh-users").addEventListener("click", loadAdminUsers);
+
+      document.querySelector("#school-name-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const button = document.querySelector("#school-name-submit");
+        const name = document.querySelector("#school-name-input").value.trim();
+        if (!name || name.length > 160) {
+          showToast("Enter a school name between 1 and 160 characters.", true);
+          return;
+        }
+        button.disabled = true;
+        try {
+          const { data, error } = await supabaseClient
+            .from("schools")
+            .update({ name })
+            .eq("id", signedInSchoolId)
+            .select("name")
+            .single();
+          if (error) throw new Error(`Could not update the school name: ${error.message}`);
+          document.querySelector("#profile-school-name").textContent = data.name;
+          showToast("School name updated.");
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Could not update the school name.", true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#create-school-token").addEventListener("click", async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        document.querySelector("#school-token-result").hidden = true;
+        try {
+          const data = await adminRequest({ action: "create-school-token" });
+          if (typeof data?.token !== "string" || typeof data?.expiresAt !== "string") {
+            throw new Error("The school setup token response was invalid.");
+          }
+          document.querySelector("#school-token-value").textContent = data.token;
+          document.querySelector("#school-token-expiry").textContent = `Expires ${formatDate(data.expiresAt.slice(0, 10))}.`;
+          document.querySelector("#school-token-result").hidden = false;
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Could not create a school setup token.", true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.querySelector("#copy-school-token").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(document.querySelector("#school-token-value").textContent);
+          showToast("School setup token copied.");
+        } catch (error) {
+          showToast(error instanceof Error ? error.message : "Could not copy the token.", true);
+        }
+      });
 
       function populateSelect(select, values, placeholder) {
         const current = select.value;
@@ -1979,7 +2225,7 @@
         try {
           const { error } = await supabaseClient
             .from("school_results")
-            .upsert(entries, { onConflict: "student_id,subject,assessment,assessment_date" });
+            .upsert(entries, { onConflict: "school_id,student_id,subject,assessment,assessment_date" });
           if (error) throw new Error(`Could not save scores: ${error.message}`);
           await loadWorkspaceData();
           elements.scoreEntryMessage.textContent = `Saved ${entries.length} ${entries.length === 1 ? "score" : "scores"} for ${classroom.name} · ${assessmentName}.`;
@@ -3018,13 +3264,13 @@
           });
           const { error } = await supabaseClient
             .from("school_results")
-            .upsert([...uniqueResults.values()], { onConflict: "student_id,subject,assessment,assessment_date" });
+            .upsert([...uniqueResults.values()], { onConflict: "school_id,student_id,subject,assessment,assessment_date" });
           if (error) throw new Error(`Could not save imported results: ${error.message}`);
           await loadWorkspaceData();
           state.page = 1;
           elements.search.value = "";
           render();
-          showToast(`Saved ${uniqueResults.size} ${uniqueResults.size === 1 ? "result" : "results"} from ${file.name} to the shared school data.`);
+          showToast(`Saved ${uniqueResults.size} ${uniqueResults.size === 1 ? "result" : "results"} from ${file.name} to your school's data.`);
         } catch (error) {
           showToast(error instanceof Error ? error.message : "The CSV could not be imported.", true);
         } finally {
